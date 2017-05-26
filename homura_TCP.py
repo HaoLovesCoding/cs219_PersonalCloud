@@ -31,51 +31,6 @@ class HomuraFS():
                 filepath = cmd[1]
                 self.handle_readTCP(filepath)
 
-
-    def handle_upload(self, filepath, hadoop_path, upload_actual):
-        with open(filepath) as reader:
-            with self.client.write(hadoop_path, overwrite=True) as writer:
-                if upload_actual:
-                    print 'Log: Uploading actual file'
-                    for line in reader:
-                        writer.write(line)
-                else:
-                    print 'Log: Uploading metadata'
-                    writer.write('METADATA\n')
-                    writer.write(self.name + '\n')
-                    writer.write(filepath + '\n')
-
-    def handle_read(self, filepath):
-        while True:
-            exists = self.exists_file(filepath)
-            if exists == 'DNE':
-                print 'Error: Could not find file with name ' + filepath
-                return
-            elif exists == 'METADATA':
-                print 'Log: Only metadata exists right now'
-                with self.client.read(filepath) as reader:
-                    data = reader.read()
-                    lines = data.split('\n')
-                    host = lines[1]
-                    origin_path = lines[2]
-                    req = host + ',' + origin_path + ',' + filepath + '\n'
-                    exists_req = False
-                    with self.client.read(self.request_file) as reader2:
-                        lines = reader2.read().split('\n')
-                        for line in lines:
-                            if req == line + '\n': # request already in
-                                print 'Log: Request exists already'
-                                exists_req = True
-                                break
-                    if not exists_req:
-                        self.client.write(self.request_file, data=req, append=True)
-                        print 'Log: Request entered into log'
-
-            else:
-                print exists # contains data otherwise
-                return
-            time.sleep(2) # sleep between polls
-
     def exists_file(self, filepath):
         try:
             with self.client.read(filepath) as reader:
