@@ -44,8 +44,8 @@ class HomuraMeta:
 			node.appendChild(elem)
 		return node
 
-	def saveXml(self):
-		my_writer=open('test.xml','w')
+	def saveXml(self,path):
+		my_writer=open(path,'w')
 		self.mydoc.writexml(my_writer)
 		my_writer.write('')
 		my_writer.close()
@@ -63,12 +63,6 @@ class HomuraMeta:
 			pass
 		except Exception:
 			print 'Loading Warning: File or directory not exists'
-
-	def findAllFiles(self):
-		for x in self.mydoc.getElementsByTagName('file'):
-			print x.tagName
-			print x.getAttribute('md5')
-			print x.parentNode.getAttribute('path')
 
 	def weakConsistentCompare(self):
 		myfile_dict={}
@@ -102,7 +96,7 @@ class HomuraMeta:
 
 	def showOp(self):
 		for x in self.moveSet:
-			print 'move: 'x[0]+'=>'+x[1]
+			print 'move: '+x[0]+'=>'+x[1]
 		for x in self.deleteSet:
 			print 'delete: '+x
 		for x in self.createSet:
@@ -115,7 +109,7 @@ if __name__ == "__main__":
 	
 	cloud_meta=HomuraMeta()
 	cloud_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/cloud_file')
-	cloud_meta.saveXml()
+	cloud_meta.saveXml('test.xml')
 
 	my_meta.loadXml('test.xml')
 	my_meta.showCloudXml()
