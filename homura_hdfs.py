@@ -1,12 +1,14 @@
 
 from hdfs import Config
 import time
+import os
 
 
 class HomuraFS():
 
     def __init__(self, name):
         self.client = Config().get_client('dev')
+        self.uploaded_files = 'uploaded_files.txt'
         self.request_file = 'hadooptest/request_log.txt'
         self.prompt = 'homura_fs $ '
         self.name = name
@@ -15,7 +17,8 @@ class HomuraFS():
         while True:
             cmd = raw_input(self.prompt).split(' ')
 
-            if len(cmd) == 1 and cmd[0] == 'quit':
+            if len(cmd) == 1 and (cmd[0] == 'quit' or cmd[0] == 'unmount'):
+                self.handle_unmount()
                 break
             elif len(cmd) == 1 and cmd[0] == 'help':
                 print 'placeholder for help'
@@ -46,6 +49,20 @@ class HomuraFS():
                     buf += line + '\n'
             self.client.write(self.request_file, overwrite=True, data=buf, append=False)
 
+    def handle_unmount(self):
+        print 'Log: Attempting to unmount device'
+        with open(self.uploaded_files, 'r+') as upfile:
+            print 'Log: Checking uploads file'
+            for line in [line.rstrip('\n') for line in upfile]:
+                filepath, hadoop_path = line.split(',')
+                with self.client.read(hadoop_path) as hfile:
+                    with open(filepath, 'w') as writer:
+                        print 'Log: Writing ' + filepath + ' back to disk'
+                        writer.write(hfile.read())
+                        print 'Log: Deleting ' + hadoop_path + ' from HDFS'
+                        self.client.delete(hadoop_path)
+        os.remove(self.uploaded_files)
+
     def handle_upload(self, filepath, hadoop_path, upload_actual):
         with open(filepath) as reader:
             with self.client.write(hadoop_path, overwrite=True) as writer:
@@ -53,6 +70,9 @@ class HomuraFS():
                     print 'Log: Uploading actual file'
                     for line in reader:
                         writer.write(line)
+                    with open(self.uploaded_files, "a+") as upfile:
+                        upfile.write(filepath + ',' + hadoop_path + '\n')
+                        print 'Log: Adding file to uploads file'
                 else:
                     print 'Log: Uploading metadata'
                     writer.write('METADATA\n')
@@ -88,7 +108,6 @@ class HomuraFS():
             else:
                 print exists # contains data otherwise
                 return
-            time.sleep(2) # sleep between polls
 
     def exists_file(self, filepath):
         try:
