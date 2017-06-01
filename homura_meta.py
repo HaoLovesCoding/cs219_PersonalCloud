@@ -67,76 +67,76 @@ class HomuraMeta:
 			print 'Loading Warning: File or directory not exists'
 
 	#pass the DomNode into the function and get the intersection, used in casualConsistentCompare to get the next part of queue
-	def __intersectByWeakStd(self,children_list1,children_list2):
-		set1_dir=Set()
+	def __intersectByWeakStd(self,children_list_now,children_list_history):
+		set_now_dir=Set()
 		set1_file=Set()
 		set2_file=Set()
-		set2_dir=Set()
+		set_history_dir=Set()
 		FileStruct = namedtuple("FileStruct", "name md5")
 		result1=[]
 		result2=[]
-		for x in children_list1:
+		for x in children_list_now:
 			if x.nodeName=='dir':
-				set1_dir.add(x.getAttribute('path'))
+				set_now_dir.add(x.getAttribute('path'))
 			if x.nodeName=='file':
 				set1_file.add(FileStruct(x.getAttribute('name'), x.getAttribute('md5')))
-		for x in children_list2:
+		for x in children_list_history:
 			if x.nodeName=='dir':
-				set2_dir.add(x.getAttribute('path'))
+				set_history_dir.add(x.getAttribute('path'))
 			if x.nodeName=='file':
 				set2_file.add(FileStruct(x.getAttribute('name'), x.getAttribute('md5')))
-		for x in children_list1:
-			if x.nodeName=='dir' and x.getAttribute('path') in set2_dir:
+		for x in children_list_now:
+			if x.nodeName=='dir' and x.getAttribute('path') in set_history_dir:
 				result1.append(x)
 			if x.nodeName=='file' and FileStruct(x.getAttribute('name'), x.getAttribute('md5')) in set2_file:
 				result1.append(x)
-		for x in children_list2:
-			if x.nodeName=='dir' and x.getAttribute('path') in set1_dir:
+		for x in children_list_history:
+			if x.nodeName=='dir' and x.getAttribute('path') in set_now_dir:
 				result2.append(x)
 			if x.nodeName=='file' and FileStruct(x.getAttribute('name'), x.getAttribute('md5')) in set1_file:
 				result2.append(x)
 		return (result1,result2)
 
-	def __findOperationInHistory(self,children_list1,children_list2):
-		set1_dir=Set()
-		set2_dir=Set()
-		dict1_file={}
-		dict2_file={}
+	def __findOperationInHistory(self,children_list_now,children_list_history):
+		set_now_dir=Set()
+		set_history_dir=Set()
+		dict_now_file={}
+		dict_history_file={}
 		createSet=Set()
 		deleteSet=Set()
 		modifySet=Set()
 		#put all the stuff in the set and dict
-		for x in children_list1:
+		for x in children_list_now:
 			if x.nodeName=='dir':
-				set1_dir.add(x.getAttribute('path'))
+				set_now_dir.add(x.getAttribute('path'))
 			if x.nodeName=='file':
-				dict1_file[x.getAttribute('name')]=x.getAttribute('md5')
-		for x in children_list2:
+				dict_now_file[x.getAttribute('name')]=x.getAttribute('md5')
+		for x in children_list_history:
 			if x.nodeName=='dir':
-				set2_dir.add(x.getAttribute('path'))
+				set_history_dir.add(x.getAttribute('path'))
 			if x.nodeName=='file':
-				dict2_file[x.getAttribute('name')]=x.getAttribute('md5')
+				dict_history_file[x.getAttribute('name')]=x.getAttribute('md5')
 		#find the operation
-		for x in children_list1:
+		for x in children_list_now:
 			if x.nodeName=='dir':
 				path=x.getAttribute('path')
-				if path not in set2_dir:
-					createSet.add(x.parentNode.getAttribute('path')+'/'+path)
+				if path not in set_history_dir:
+					createSet.add(x.parentNode.getAttribute('path')+path[1:])
 			if x.nodeName=='file':
 				name=x.getAttribute('name')
 				md5=x.getAttribute('md5')
-				if name not in dict2_file:
+				if name not in dict_history_file:
 					createSet.add(x.parentNode.getAttribute('path')+'/'+name)
-				if name in dict2_file and dict2_file[name]!=md5:
+				if name in dict_history_file and dict_history_file[name]!=md5:
 					modifySet.add(x.parentNode.getAttribute('path')+'/'+name)
-		for x in children_list2:
+		for x in children_list_history:
 			if x.nodeName=='dir':
 				path=x.getAttribute('path')
-				if path not in set1_dir:
-					deleteSet.add(x.parentNode.getAttribute('path')+'/'+path)
+				if path not in set_now_dir:
+					deleteSet.add(x.parentNode.getAttribute('path')+path[1:])
 			if x.nodeName=='file':
 				name=x.getAttribute('name')
-				if name not in dict1_file:
+				if name not in dict_now_file:
 					deleteSet.add(x.parentNode.getAttribute('path')+'/'+name)
 		#show operation
 		for x in deleteSet:
