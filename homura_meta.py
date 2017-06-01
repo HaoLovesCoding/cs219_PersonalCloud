@@ -10,7 +10,7 @@ class HomuraMeta:
 
 	def __init__(self):
 		self.mydoc=None
-		self.clouddoc=None
+		self.Snapshotdoc=None
 
 	def path2Xml(self,path):
 		try:
@@ -55,19 +55,19 @@ class HomuraMeta:
 	def showMyXml(self):
 		print self.mydoc.toprettyxml()
 
-	def showCloudXml(self):
-		print self.clouddoc.toprettyxml()
+	def showSnapshotXml(self):
+		print self.Snapshotdoc.toprettyxml()
 
 	def loadXml(self,path):
 		try:
 			myfile=open(path,'r')
-			self.clouddoc=parseString(myfile.read())
+			self.Snapshotdoc=parseString(myfile.read())
 			pass
 		except Exception:
 			print 'Loading Warning: File or directory not exists'
 
-	#pass the DomNode into the function and get the intersection by the standard
-	def intersectByWeakStd(self,children_list1,children_list2):
+	#pass the DomNode into the function and get the intersection, used in casualConsistentCompare to get the next part of queue
+	def __intersectByWeakStd(self,children_list1,children_list2):
 		set1_dir=Set()
 		set1_file=Set()
 		set2_file=Set()
@@ -97,19 +97,70 @@ class HomuraMeta:
 				result2.append(x)
 		return (result1,result2)
 
+	def __findOperationInHistory(self,children_list1,children_list2):
+		set1_dir=Set()
+		set2_dir=Set()
+		dict1_file={}
+		dict2_file={}
+		createSet=Set()
+		deleteSet=Set()
+		modifySet=Set()
+		#put all the stuff in the set and dict
+		for x in children_list1:
+			if x.nodeName=='dir':
+				set1_dir.add(x.getAttribute('path'))
+			if x.nodeName=='file':
+				dict1_file[x.getAttribute('name')]=x.getAttribute('md5')
+		for x in children_list2:
+			if x.nodeName=='dir':
+				set2_dir.add(x.getAttribute('path'))
+			if x.nodeName=='file':
+				dict2_file[x.getAttribute('name')]=x.getAttribute('md5')
+		#find the operation
+		for x in children_list1:
+			if x.nodeName=='dir':
+				path=x.getAttribute('path')
+				if path not in set2_dir:
+					createSet.add(x.parentNode.getAttribute('path')+'/'+path)
+			if x.nodeName=='file':
+				name=x.getAttribute('name')
+				md5=x.getAttribute('md5')
+				if name not in dict2_file:
+					createSet.add(x.parentNode.getAttribute('path')+'/'+name)
+				if name in dict2_file and dict2_file[name]!=md5:
+					modifySet.add(x.parentNode.getAttribute('path')+'/'+name)
+		for x in children_list2:
+			if x.nodeName=='dir':
+				path=x.getAttribute('path')
+				if path not in set1_dir:
+					deleteSet.add(x.parentNode.getAttribute('path')+'/'+path)
+			if x.nodeName=='file':
+				name=x.getAttribute('name')
+				if name not in dict1_file:
+					deleteSet.add(x.parentNode.getAttribute('path')+'/'+name)
+		#show operation
+		for x in deleteSet:
+			print 'delete '+x
+		for x in createSet:
+			print 'create '+x
+		for y in modifySet:
+			print 'modify '+x
+
+
 	def casualConsistentCompare(self):
 		my_q=[self.mydoc]
-		cloud_q=[self.clouddoc]
-		while my_q and cloud_q:
+		Snapshot_q=[self.Snapshotdoc]
+		while my_q and Snapshot_q:
 			my_cur=my_q.pop(0)
-			cloud_cur=cloud_q.pop(0)
+			Snapshot_cur=Snapshot_q.pop(0)
 			if my_cur.nodeName=='file':
 				print my_cur.getAttribute('name')
-			if cloud_cur.nodeName=='dir':
-				print cloud_cur.getAttribute('path')
-			intersect1,intersect2=self.intersectByWeakStd(my_cur.childNodes,cloud_cur.childNodes)
+			if Snapshot_cur.nodeName=='dir':
+				print Snapshot_cur.getAttribute('path')
+			intersect1,intersect2=self.__intersectByWeakStd(my_cur.childNodes,Snapshot_cur.childNodes)
+			self.__findOperationInHistory(my_cur.childNodes,Snapshot_cur.childNodes)
 			my_q+=intersect1
-			cloud_q+=intersect2
+			Snapshot_q+=intersect2
 
 	def BFS(self):
 		q=[self.mydoc]
@@ -122,7 +173,7 @@ class HomuraMeta:
 
 	def weakConsistentCompare(self):
 		myfile_dict={}
-		cloudfile_dict={}
+		Snapshotfile_dict={}
 		moveSet=Set()#include the tuple of original path and new path
 		deleteSet=Set()#include the path of delete
 		createSet=Set()
@@ -132,26 +183,26 @@ class HomuraMeta:
 				my_file_name=my_file.getAttribute('name')
 				my_file_dir=my_file.parentNode.getAttribute('path')
 				myfile_dict[my_file_md5]=my_file_dir+'/'+my_file_name
-		if self.clouddoc:
-			for cloud_file in self.clouddoc.getElementsByTagName('file'):
-				cloud_file_md5=cloud_file.getAttribute('md5')
-				cloud_file_name=cloud_file.getAttribute('name')
-				cloud_file_dir=cloud_file.parentNode.getAttribute('path')
-				cloudfile_dict[cloud_file_md5]=cloud_file_dir+'/'+cloud_file_name
+		if self.Snapshotdoc:
+			for Snapshot_file in self.Snapshotdoc.getElementsByTagName('file'):
+				Snapshot_file_md5=Snapshot_file.getAttribute('md5')
+				Snapshot_file_name=Snapshot_file.getAttribute('name')
+				Snapshot_file_dir=Snapshot_file.parentNode.getAttribute('path')
+				Snapshotfile_dict[Snapshot_file_md5]=Snapshot_file_dir+'/'+Snapshot_file_name
 		for my_md5 in myfile_dict:
-			if  my_md5 in cloudfile_dict and myfile_dict[my_md5]==cloudfile_dict[my_md5]:
+			if  my_md5 in Snapshotfile_dict and myfile_dict[my_md5]==Snapshotfile_dict[my_md5]:
 				continue
-			if  my_md5 in cloudfile_dict and myfile_dict[my_md5]!=cloudfile_dict[my_md5]:
-				moveSet.add((myfile_dict[my_md5],cloudfile_dict[my_md5]))
+			if  my_md5 in Snapshotfile_dict and myfile_dict[my_md5]!=Snapshotfile_dict[my_md5]:
+				moveSet.add((myfile_dict[my_md5],Snapshotfile_dict[my_md5]))
 				continue
-			if  my_md5 not in cloudfile_dict:
+			if  my_md5 not in Snapshotfile_dict:
 				deleteSet.add(myfile_dict[my_md5])
 				continue
-		for cloud_md5 in cloudfile_dict:
-			if cloud_md5 not in myfile_dict:
-				createSet.add(cloudfile_dict[cloud_md5])
+		for Snapshot_md5 in Snapshotfile_dict:
+			if Snapshot_md5 not in myfile_dict:
+				createSet.add(Snapshotfile_dict[Snapshot_md5])
 		#print myfile_dict
-		#print cloudfile_dict
+		#print Snapshotfile_dict
 
 	def weakConsistentshowOp(self):
 		for x in self.moveSet:
@@ -166,12 +217,12 @@ if __name__ == "__main__":
 	my_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/A')
 	my_meta.showMyXml()
 	
-	cloud_meta=HomuraMeta()
-	cloud_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/B')
-	cloud_meta.saveXml('test.xml')
+	Snapshot_meta=HomuraMeta()
+	Snapshot_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/B')
+	Snapshot_meta.saveXml('test.xml')
 
 	my_meta.loadXml('test.xml')
-	my_meta.showCloudXml()
+	my_meta.showSnapshotXml()
 	#my_meta.weakConsistentCompare()
 	#my_meta.BFS()
 	my_meta.casualConsistentCompare()
