@@ -1,6 +1,11 @@
+import os
+
 class ConflictResolver(object):
 
-    def resolve(self,list_a,list_b, host_a = "H1", host_b = "H2"):
+    def __init__(self):
+        self.local_root = None
+
+    def resolve(self,list_a,list_b, host_a = "Local", host_b = "HDFS"):
         #each list has three sublist: create, delete, modify
         delete_a = list_a[1]
         delete_b = list_b[1]
@@ -8,6 +13,17 @@ class ConflictResolver(object):
         modify_b = list_b[2]
         create_a = list_a[0]
         create_b = list_b[0]
+
+        # solve deletion conflict
+
+        intersect = filter(lambda x: x in delete_a, delete_b)
+
+        for entry in intersect:
+            idx1 = delete_a.index(entry)
+            del delete_a[idx1]
+            idx2 = delete_b.index(entry)
+            del delete_b[idx2]
+
 
         # solve modification conflict
 
@@ -21,6 +37,23 @@ class ConflictResolver(object):
             elif result == host_b:# leave host_b copy
                 idx = modify_b.index(entry)
                 del modify_b[idx]
+
+            elif result == "Both":
+                (local_dirpath,old_filename) = self.find_local_dir(entry)
+                if old_filename not in os.listdir(local_dirpath):
+                    raise NameError, old_filename + " is not on the local computer"
+                else:
+                    old_fullname = self.recFindName()
+                    #old_fullname = local_dirpath + os.path.sep + old_filename
+                    new_fullname = old_fullname + "_" + host_a
+                    os.rename(old_fullname, new_fullname)
+
+                    idx = modify_b.index(entry)
+                    del modify_b[idx]
+
+                    #create a new file named new name
+                    new_name = entry + "_" + host_a
+                    create_b.append(new_name)
 
         # solve creation conflict
 
@@ -88,5 +121,30 @@ class ConflictResolver(object):
              result = raw_input()
              if result == host_a or result == host_b:
                  return result
+            #TODO: Add support for keeping both copy of the files
+             elif result == "Both" and type_a == type_b:
+                 return result
              else:
                  print "Wrong input"
+
+    def set_local_root(self,root):
+        if root[0] != "/":
+            raise ValueError, "The root should start with \"/\""
+        elif root[-1] == "/":
+            root = root[:-1]
+        self.local_root = root
+
+    def find_local_dir(self,entry):
+        if self.root == None:
+            raise ValueError, "local root directory has not been set"
+        else:
+            local_filepath = self.root + entry
+            for i in range(len(local_filepath)-1,-1,-1):
+                if local_filepath[i] == "/":
+                    break
+            local_dirpath = local_filepath[:i]
+            filename = local_filepath[i+1:]
+            return (local_dirpath,filename)
+
+    def recFindname(self):
+        return
