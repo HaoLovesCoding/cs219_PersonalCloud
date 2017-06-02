@@ -10,11 +10,15 @@ class HomuraMeta:
 	def __init__(self):
 		self.mydoc=None
 		self.Snapshotdoc=None
+		self.HDFSdoc=None
+		self.tempdoc=None
 
 	def path2Xml(self,path):
+		if self.tempdoc!=None:
+			print 'Warning! tempdoc is being overwritten'
 		try:
-			self.mydoc=Document()
-			self.mydoc.appendChild(self.__path2XmlHelper(path,len(path)))
+			self.tempdoc=Document()
+			self.tempdoc.appendChild(self.__path2XmlHelper(path,len(path)))
 		except Exception:
 			print 'Path Reading Warning: File or directory not exists'
 		return
@@ -27,7 +31,7 @@ class HomuraMeta:
 	    return hash_md5.hexdigest()
 
 	def __path2XmlHelper(self,path,rootDirLen):
-		node=self.mydoc.createElement('dir')
+		node=self.tempdoc.createElement('dir')
 		if len(path)!=rootDirLen:
 			node.setAttribute('path',path[rootDirLen:]+'/')
 		else:
@@ -38,7 +42,7 @@ class HomuraMeta:
 			if os.path.isdir(fullpath):
 				elem=self.__path2XmlHelper(fullpath,rootDirLen)
 			else:
-				elem=self.mydoc.createElement('file')
+				elem=self.tempdoc.createElement('file')
 				elem.setAttribute('name',f)
 				md5=self.__md5(fullpath)
 				elem.setAttribute('md5',md5)
@@ -46,23 +50,58 @@ class HomuraMeta:
 			node.appendChild(elem)
 		return node
 
-	def saveXml(self,path):
-		my_writer=open(path,'w')
-		self.mydoc.writexml(my_writer)
-		my_writer.write('')
-		my_writer.close()
+	def saveXml(self,path,Xml='temp'):
+		if Xml=='temp':
+			my_writer=open(path,'w')
+			self.tempdoc.writexml(my_writer)
+			my_writer.write('')
+			my_writer.close()			
+		elif Xml=='my':
+			my_writer=open(path,'w')
+			self.mydoc.writexml(my_writer)
+			my_writer.write('')
+			my_writer.close()
+		elif Xml=='snapshot':
+			my_writer=open(path,'w')
+			self.Snapshotdoc.writexml(my_writer)
+			my_writer.write('')
+			my_writer.close()
+		elif Xml=='cloud':
+			my_writer=open(path,'w')
+			self.HDFSdoc.writexml(my_writer)
+			my_writer.write('')
+			my_writer.close()
 		return
 
+	def showHDFSXml(self):
+		print self.HDFSdoc.toprettyxml()
 	def showMyXml(self):
 		print self.mydoc.toprettyxml()
-
 	def showSnapshotXml(self):
 		print self.Snapshotdoc.toprettyxml()
 
-	def loadXml(self,path):
+	def loadMyXml(self,path):
+		try:
+			myfile=open(path,'r')
+			self.mydoc=parseString(myfile.read())
+			pass
+		except Exception:
+			print 'Loading Warning: File or directory not exists'
+		return
+
+	def loadSnapshotXml(self,path):
 		try:
 			myfile=open(path,'r')
 			self.Snapshotdoc=parseString(myfile.read())
+			pass
+		except Exception:
+			print 'Loading Warning: File or directory not exists'
+		return
+
+	def loadHDFSXml(self,path):
+		try:
+			myfile=open(path,'r')
+			self.HDFSdoc=parseString(myfile.read())
 			pass
 		except Exception:
 			print 'Loading Warning: File or directory not exists'
@@ -149,9 +188,15 @@ class HomuraMeta:
 					deleteSet.append(x.parentNode.getAttribute('path')+name)
 		return
 
-	def casualConsistentCompare(self):
-		my_q=[self.mydoc]
-		Snapshot_q=[self.Snapshotdoc]
+	def compareMy_Snapshot(self):
+		return self.__casualConsistentCompare(self.mydoc,self.Snapshotdoc)
+
+	def compareHDFS_Snapshot(self):
+		return self.__casualConsistentCompare(self.HDFSdoc,self.Snapshotdoc)
+
+	def __casualConsistentCompare(self,dom1,dom2):
+		my_q=[dom1]
+		Snapshot_q=[dom2]
 		createSet=[]
 		deleteSet=[]
 		modifySet=[]
@@ -225,12 +270,14 @@ class HomuraMeta:
 if __name__ == "__main__":
 	my_meta=HomuraMeta()
 	my_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/B_now')
-	my_meta.showMyXml()
+	my_meta.saveXml('my.xml')
 	
 	Snapshot_meta=HomuraMeta()
 	Snapshot_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/A_history')
-	Snapshot_meta.saveXml('test.xml')
+	Snapshot_meta.saveXml('history.xml')
 
-	my_meta.loadXml('test.xml')
+	my_meta.loadMyXml('my.xml')
+	my_meta.loadSnapshotXml('history.xml')
+	my_meta.showMyXml()
 	my_meta.showSnapshotXml()
-	tup=my_meta.casualConsistentCompare()
+	my_meta.compareMy_Snapshot()
