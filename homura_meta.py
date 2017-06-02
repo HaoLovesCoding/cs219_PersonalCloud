@@ -91,15 +91,8 @@ class HomuraMeta:
 				set_history_dir.add(x.getAttribute('path'))
 			if x.nodeName=='file':
 				set2_file.add(FileStruct(x.getAttribute('name'), x.getAttribute('md5')))
-<<<<<<< HEAD
-
-
-		for x in children_list1:
-			if x.nodeName=='dir' and x.getAttribute('path') in set2_dir:
-=======
 		for x in children_list_now:
 			if x.nodeName=='dir' and x.getAttribute('path') in set_history_dir:
->>>>>>> 38ba8c6ed8afb5a144abb7a2937de9cc64f4b61a
 				result1.append(x)
 			if x.nodeName=='file' and FileStruct(x.getAttribute('name'), x.getAttribute('md5')) in set2_file:
 				result1.append(x)
@@ -152,22 +145,9 @@ class HomuraMeta:
 					self.__BFS_from_node(node_x,deleteSet)
 			if x.nodeName=='file':
 				name=x.getAttribute('name')
-<<<<<<< HEAD
-				if name not in dict1_file:
-					deleteSet.add(x.parentNode.getAttribute('path')+'/'+name)
-		#show operation
-		for x in deleteSet:
-			print 'delete '+x
-		for x in createSet:
-			print 'create '+x
-		for x in modifySet:
-			print 'modify '+x
-
-=======
 				if name not in dict_now_file:
 					deleteSet.append(x.parentNode.getAttribute('path')+name)
 		return
->>>>>>> 38ba8c6ed8afb5a144abb7a2937de9cc64f4b61a
 
 	def casualConsistentCompare(self):
 		my_q=[self.mydoc]
@@ -244,27 +224,13 @@ class HomuraMeta:
 
 if __name__ == "__main__":
 	my_meta=HomuraMeta()
-<<<<<<< HEAD
-	my_meta.path2Xml('/Users/xiaoyan/Desktop/A')
-=======
 	my_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/B_now')
->>>>>>> 38ba8c6ed8afb5a144abb7a2937de9cc64f4b61a
 	my_meta.showMyXml()
-
+	
 	Snapshot_meta=HomuraMeta()
-<<<<<<< HEAD
-	Snapshot_meta.path2Xml('/Users/xiaoyan/Desktop/B')
-=======
 	Snapshot_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/A_history')
->>>>>>> 38ba8c6ed8afb5a144abb7a2937de9cc64f4b61a
 	Snapshot_meta.saveXml('test.xml')
 
 	my_meta.loadXml('test.xml')
 	my_meta.showSnapshotXml()
-<<<<<<< HEAD
-	#my_meta.weakConsistentCompare()
-	#my_meta.BFS()
-	my_meta.casualConsistentCompare()
-=======
 	tup=my_meta.casualConsistentCompare()
->>>>>>> 38ba8c6ed8afb5a144abb7a2937de9cc64f4b61a
