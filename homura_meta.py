@@ -6,7 +6,6 @@ from collections import namedtuple
 import copy
 
 class HomuraMeta:
-	DirStruct = namedtuple("DirStruct","path timestamp")
 
 	def __init__(self):
 		self.mydoc=None
@@ -18,6 +17,7 @@ class HomuraMeta:
 			self.mydoc.appendChild(self.__path2XmlHelper(path,len(path)))
 		except Exception:
 			print 'Path Reading Warning: File or directory not exists'
+		return
 
 	def __md5(self,fname):
 	    hash_md5 = hashlib.md5()
@@ -29,7 +29,7 @@ class HomuraMeta:
 	def __path2XmlHelper(self,path,rootDirLen):
 		node=self.mydoc.createElement('dir')
 		if len(path)!=rootDirLen:
-			node.setAttribute('path',path[rootDirLen:])
+			node.setAttribute('path',path[rootDirLen:]+'/')
 		else:
 			node.setAttribute('path','/')
 		for f in os.listdir(path):
@@ -51,6 +51,7 @@ class HomuraMeta:
 		self.mydoc.writexml(my_writer)
 		my_writer.write('')
 		my_writer.close()
+		return
 
 	def showMyXml(self):
 		print self.mydoc.toprettyxml()
@@ -65,79 +66,93 @@ class HomuraMeta:
 			pass
 		except Exception:
 			print 'Loading Warning: File or directory not exists'
+		return
+
+	def getFileInfoXML(self,XML,filepath):
+		return
 
 	#pass the DomNode into the function and get the intersection, used in casualConsistentCompare to get the next part of queue
-	def __intersectByWeakStd(self,children_list1,children_list2):
-		set1_dir=Set()
+	#weak standard means the node might be different but we believe two node are same if the names of node are same
+	def __intersectByWeakStd(self,children_list_now,children_list_history):
+		set_now_dir=Set()
 		set1_file=Set()
 		set2_file=Set()
-		set2_dir=Set()
+		set_history_dir=Set()
 		FileStruct = namedtuple("FileStruct", "name md5")
 		result1=[]
 		result2=[]
-		for x in children_list1:
+		for x in children_list_now:
 			if x.nodeName=='dir':
-				set1_dir.add(x.getAttribute('path'))
+				set_now_dir.add(x.getAttribute('path'))
 			if x.nodeName=='file':
 				set1_file.add(FileStruct(x.getAttribute('name'), x.getAttribute('md5')))
-		for x in children_list2:
+		for x in children_list_history:
 			if x.nodeName=='dir':
-				set2_dir.add(x.getAttribute('path'))
+				set_history_dir.add(x.getAttribute('path'))
 			if x.nodeName=='file':
 				set2_file.add(FileStruct(x.getAttribute('name'), x.getAttribute('md5')))
+<<<<<<< HEAD
 
 
 		for x in children_list1:
 			if x.nodeName=='dir' and x.getAttribute('path') in set2_dir:
+=======
+		for x in children_list_now:
+			if x.nodeName=='dir' and x.getAttribute('path') in set_history_dir:
+>>>>>>> 38ba8c6ed8afb5a144abb7a2937de9cc64f4b61a
 				result1.append(x)
 			if x.nodeName=='file' and FileStruct(x.getAttribute('name'), x.getAttribute('md5')) in set2_file:
 				result1.append(x)
-		for x in children_list2:
-			if x.nodeName=='dir' and x.getAttribute('path') in set1_dir:
+		for x in children_list_history:
+			if x.nodeName=='dir' and x.getAttribute('path') in set_now_dir:
 				result2.append(x)
 			if x.nodeName=='file' and FileStruct(x.getAttribute('name'), x.getAttribute('md5')) in set1_file:
 				result2.append(x)
 		return (result1,result2)
 
-	def __findOperationInHistory(self,children_list1,children_list2):
-		set1_dir=Set()
-		set2_dir=Set()
-		dict1_file={}
-		dict2_file={}
-		createSet=Set()
-		deleteSet=Set()
-		modifySet=Set()
+	def __findOperationInHistory_2(self,children_list_now,children_list_history,createSet,deleteSet,modifySet):#the arguments are two lists of children_node in XML
+		set_now_dir=Set()
+		set_history_dir=Set()
+		dict_now_file={}
+		dict_history_file={}
 		#put all the stuff in the set and dict
-		for x in children_list1:
+		dirpath2Node_map_now={}
+		dirpath2Node_map_history={}
+		for x in children_list_now:
 			if x.nodeName=='dir':
-				set1_dir.add(x.getAttribute('path'))
+				set_now_dir.add(x.getAttribute('path'))
+				dirpath2Node_map_now[x.getAttribute('path')]=x
 			if x.nodeName=='file':
-				dict1_file[x.getAttribute('name')]=x.getAttribute('md5')
-		for x in children_list2:
+				dict_now_file[x.getAttribute('name')]=x.getAttribute('md5')
+		for x in children_list_history:
 			if x.nodeName=='dir':
-				set2_dir.add(x.getAttribute('path'))
+				set_history_dir.add(x.getAttribute('path'))
+				dirpath2Node_map_history[x.getAttribute('path')]=x
 			if x.nodeName=='file':
-				dict2_file[x.getAttribute('name')]=x.getAttribute('md5')
+				dict_history_file[x.getAttribute('name')]=x.getAttribute('md5')
 		#find the operation
-		for x in children_list1:
+		for x in children_list_now:
 			if x.nodeName=='dir':
 				path=x.getAttribute('path')
-				if path not in set2_dir:
-					createSet.add(x.parentNode.getAttribute('path')+'/'+path)
+				if path not in set_history_dir:
+					node_x=dirpath2Node_map_now[path]
+					self.__BFS_from_node(node_x,createSet)
 			if x.nodeName=='file':
 				name=x.getAttribute('name')
 				md5=x.getAttribute('md5')
-				if name not in dict2_file:
-					createSet.add(x.parentNode.getAttribute('path')+'/'+name)
-				if name in dict2_file and dict2_file[name]!=md5:
-					modifySet.add(x.parentNode.getAttribute('path')+'/'+name)
-		for x in children_list2:
+				if name not in dict_history_file:
+					createSet.append(x.parentNode.getAttribute('path')+name)
+				if name in dict_history_file and dict_history_file[name]!=md5:
+					modifySet.append(x.parentNode.getAttribute('path')+name)
+		for x in children_list_history:
 			if x.nodeName=='dir':
 				path=x.getAttribute('path')
-				if path not in set1_dir:
-					deleteSet.add(x.parentNode.getAttribute('path')+'/'+path)
+				if path not in set_now_dir:
+					node_x=dirpath2Node_map_history[path]
+					self.__BFS_from_node(node_x,deleteSet)
 			if x.nodeName=='file':
 				name=x.getAttribute('name')
+<<<<<<< HEAD
 				if name not in dict1_file:
 					deleteSet.add(x.parentNode.getAttribute('path')+'/'+name)
 		#show operation
@@ -148,32 +163,47 @@ class HomuraMeta:
 		for x in modifySet:
 			print 'modify '+x
 
+=======
+				if name not in dict_now_file:
+					deleteSet.append(x.parentNode.getAttribute('path')+name)
+		return
+>>>>>>> 38ba8c6ed8afb5a144abb7a2937de9cc64f4b61a
 
 	def casualConsistentCompare(self):
 		my_q=[self.mydoc]
 		Snapshot_q=[self.Snapshotdoc]
+		createSet=[]
+		deleteSet=[]
+		modifySet=[]
 		while my_q and Snapshot_q:
 			my_cur=my_q.pop(0)
 			Snapshot_cur=Snapshot_q.pop(0)
-			if my_cur.nodeName=='file':
-				print my_cur.getAttribute('name')
-			if Snapshot_cur.nodeName=='dir':
-				print Snapshot_cur.getAttribute('path')
 			intersect1,intersect2=self.__intersectByWeakStd(my_cur.childNodes,Snapshot_cur.childNodes)
-			self.__findOperationInHistory(my_cur.childNodes,Snapshot_cur.childNodes)
+			self.__findOperationInHistory_2(my_cur.childNodes,Snapshot_cur.childNodes,createSet,deleteSet,modifySet)
 			my_q+=intersect1
 			Snapshot_q+=intersect2
+		deleteSet=list(reversed(deleteSet))
+		for x in deleteSet:
+			print 'delete '+x
+		for x in createSet:
+			print 'create '+x
+		for x in modifySet:
+			print 'modify '+x
+		return (createSet,deleteSet,modifySet)
 
-	def BFS(self):
-		q=[self.mydoc]
+	def __BFS_from_node(self,node,some_list):
+		q=[node]
 		while q:
 			cur=q.pop(0)
-			obj=DomChildrenList(cur.childNodes)
 			q+=cur.childNodes
-			print cur.childNodes
-			obj.show()
+			if cur.nodeName=='dir':
+				some_list.append(cur.getAttribute('path'))
+				continue
+			if cur.nodeName=='file':
+				some_list.append(cur.parentNode.getAttribute('path')+cur.getAttribute('name'))
+		return
 
-	def weakConsistentCompare(self):
+	def __weakConsistentCompare_not_in_use(self):
 		myfile_dict={}
 		Snapshotfile_dict={}
 		moveSet=Set()#include the tuple of original path and new path
@@ -203,10 +233,8 @@ class HomuraMeta:
 		for Snapshot_md5 in Snapshotfile_dict:
 			if Snapshot_md5 not in myfile_dict:
 				createSet.add(Snapshotfile_dict[Snapshot_md5])
-		#print myfile_dict
-		#print Snapshotfile_dict
 
-	def weakConsistentshowOp(self):
+	def __weakConsistentshowOp_not_in_use(self):
 		for x in self.moveSet:
 			print 'move: '+x[0]+'=>'+x[1]
 		for x in self.deleteSet:
@@ -216,15 +244,27 @@ class HomuraMeta:
 
 if __name__ == "__main__":
 	my_meta=HomuraMeta()
+<<<<<<< HEAD
 	my_meta.path2Xml('/Users/xiaoyan/Desktop/A')
+=======
+	my_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/B_now')
+>>>>>>> 38ba8c6ed8afb5a144abb7a2937de9cc64f4b61a
 	my_meta.showMyXml()
 
 	Snapshot_meta=HomuraMeta()
+<<<<<<< HEAD
 	Snapshot_meta.path2Xml('/Users/xiaoyan/Desktop/B')
+=======
+	Snapshot_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/A_history')
+>>>>>>> 38ba8c6ed8afb5a144abb7a2937de9cc64f4b61a
 	Snapshot_meta.saveXml('test.xml')
 
 	my_meta.loadXml('test.xml')
 	my_meta.showSnapshotXml()
+<<<<<<< HEAD
 	#my_meta.weakConsistentCompare()
 	#my_meta.BFS()
 	my_meta.casualConsistentCompare()
+=======
+	tup=my_meta.casualConsistentCompare()
+>>>>>>> 38ba8c6ed8afb5a144abb7a2937de9cc64f4b61a
