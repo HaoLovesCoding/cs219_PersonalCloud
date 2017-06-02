@@ -4,6 +4,7 @@ import hashlib
 from sets import Set
 from collections import namedtuple
 import copy
+from ConflictResolver import ConflictResolver
 
 class HomuraMeta:
 
@@ -12,6 +13,7 @@ class HomuraMeta:
 		self.Snapshotdoc=None
 		self.HDFSdoc=None
 		self.tempdoc=None
+		self.myresolver=ConflictResolver()
 
 	def path2Xml(self,path):
 		if self.tempdoc!=None:
@@ -194,6 +196,28 @@ class HomuraMeta:
 	def compareHDFS_Snapshot(self):
 		return self.__casualConsistentCompare(self.HDFSdoc,self.Snapshotdoc)
 
+	def getOperations(self):
+		myhistory=list(self.compareMy_Snapshot())
+		HDFShistory=list(self.compareHDFS_Snapshot())
+		self.myresolver.resolve(HDFShistory,myhistory,'local','hfds')
+		#show operation for debugging
+		print '!!!!Operation on local machine:'
+		for x in HDFShistory[0]:
+			print 'create: '+x
+		for x in HDFShistory[1]:
+			print 'delete: '+x
+		for x in HDFShistory[2]:
+			print 'modify: '+x
+
+		print '!!!!Operation on HDFS:'
+		for x in myhistory[0]:
+			print 'create: '+x
+		for x in myhistory[1]:
+			print 'delete: '+x
+		for x in myhistory[2]:
+			print 'modify: '+x
+
+	#This is the operation the dom1 did in the history!!
 	def __casualConsistentCompare(self,dom1,dom2):
 		my_q=[dom1]
 		Snapshot_q=[dom2]
@@ -271,13 +295,18 @@ if __name__ == "__main__":
 	my_meta=HomuraMeta()
 	my_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/B_now')
 	my_meta.saveXml('my.xml')
-	
-	Snapshot_meta=HomuraMeta()
-	Snapshot_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/A_history')
-	Snapshot_meta.saveXml('history.xml')
+
+	my_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/A_history')
+	my_meta.saveXml('history.xml')
+
+	my_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/C_cloud')
+	my_meta.saveXml('cloud.xml')
 
 	my_meta.loadMyXml('my.xml')
 	my_meta.loadSnapshotXml('history.xml')
+	my_meta.loadHDFSXml('cloud.xml')
 	my_meta.showMyXml()
 	my_meta.showSnapshotXml()
-	my_meta.compareMy_Snapshot()
+	my_meta.showHDFSXml()
+	#my_meta.compareMy_Snapshot()
+	my_meta.getOperations()
