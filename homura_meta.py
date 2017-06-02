@@ -85,6 +85,8 @@ class HomuraMeta:
 				set2_dir.add(x.getAttribute('path'))
 			if x.nodeName=='file':
 				set2_file.add(FileStruct(x.getAttribute('name'), x.getAttribute('md5')))
+
+
 		for x in children_list1:
 			if x.nodeName=='dir' and x.getAttribute('path') in set2_dir:
 				result1.append(x)
@@ -143,7 +145,7 @@ class HomuraMeta:
 			print 'delete '+x
 		for x in createSet:
 			print 'create '+x
-		for y in modifySet:
+		for x in modifySet:
 			print 'modify '+x
 
 
@@ -214,11 +216,11 @@ class HomuraMeta:
 
 if __name__ == "__main__":
 	my_meta=HomuraMeta()
-	my_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/A')
+	my_meta.path2Xml('/Users/xiaoyan/Desktop/A')
 	my_meta.showMyXml()
-	
+
 	Snapshot_meta=HomuraMeta()
-	Snapshot_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/B')
+	Snapshot_meta.path2Xml('/Users/xiaoyan/Desktop/B')
 	Snapshot_meta.saveXml('test.xml')
 
 	my_meta.loadXml('test.xml')
