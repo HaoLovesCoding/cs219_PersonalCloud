@@ -1,5 +1,6 @@
 
 from hdfs import Config
+from homura_meta import HomuraMeta
 import time
 import os
 
@@ -18,6 +19,10 @@ class HomuraFS():
         self.name = name
         self.local_xml = 'madoka.xml'
         self.hdfs_xml = 'name/madoka.xml'
+        self.hdfs_loc_xml = 'sayaka.xml'
+        self.mount_root = os.getcwd() + '/test'
+        self.meta = HomuraMeta()
+
 
     def shell_loop(self):
         while True:
@@ -29,16 +34,48 @@ class HomuraFS():
             elif cmd == 'quit':
                 return
 
+
     def sync_files(self):
-        # fetch XML file of last sync
-        # generate current XML file of device
-        # find operations between last sync and current device
-        # fetch current XML file of HDFS
-        # find operations between last sync and current HDFS
+        # check if we have an old snapshot xml
+        if os.path.isfile(self.local_xml):
+            self.meta.loadSnapshotXml(self.local_xml)
+
+        # Generate current xml for local
+        self.meta.path2Xml(self.mount_root)
+        self.meta.mydoc = self.meta.tempdoc
+
+        # fetch HDFS xml and store locally
+        self.create_file(self.hdfs_loc_xml, self.hdfs_xml, 1)
+        self.meta.loadHDFSXml(self.hdfs_loc_xml)
+
+        # find operations since last sync
+        my_ops, hdfs_ops = self.meta.getOperations()
+
         # apply operations on current device
+        creates, deletes, modifies = my_ops
+        for loc_path, hdfs_path in creates:
+            self.create_file(loc_path, hdfs_path, 1)
+        for loc_path, hdfs_path in modifies:
+            self.update_file(loc_path, hdfs_path, 1)
+        for loc_path, hdfs_path in deletes:
+            self.delete_file(loc_path, 1)
+
         # apply operations on HDFS
+        creates, deletes, modifies = hdfs_ops
+        for loc_path, hdfs_path in creates:
+            self.create_file(loc_path, hdfs_path, 0)
+        for loc_path, hdfs_path in modifies:
+            self.update_file(loc_path, hdfs_path, 0)
+        for loc_path, hdfs_path in deletes:
+            self.delete_file(hdfs_path, 0)
+                
         # update last sync for both HDFS and current device
-        pass
+        self.meta.path2Xml(self.mount_root)
+        self.meta.saveXml(self.local_xml, Xml='temp')
+        self.update_file(self, self.local_xml, self.hdfs_xml, 0)
+
+        return
+
 
     # in this set of functions, when kyuubey = 0, the operation goes
     # from loc to hdfs (i.e. local becomes the "master")
