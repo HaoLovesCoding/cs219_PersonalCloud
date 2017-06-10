@@ -57,7 +57,7 @@ class HomuraMeta:
 			my_writer=open(path,'w')
 			self.tempdoc.writexml(my_writer)
 			my_writer.write('')
-			my_writer.close()
+			my_writer.close()			
 		elif Xml=='my':
 			my_writer=open(path,'w')
 			self.mydoc.writexml(my_writer)
@@ -196,12 +196,11 @@ class HomuraMeta:
 	def compareHDFS_Snapshot(self):
 		return self.__casualConsistentCompare(self.HDFSdoc,self.Snapshotdoc)
 
+	#return (create at local, delete at local, modify at local, create at cloud, delete at cloud, modify at cloud)
 	def getOperations(self):
-	        print "local"
 		myhistory=list(self.compareMy_Snapshot())
-		print 'hdfs'
 		HDFShistory=list(self.compareHDFS_Snapshot())
-		self.myresolver.resolve(HDFShistory,myhistory,'local','hdfs')
+		self.myresolver.resolve(HDFShistory,myhistory,'local','hfds')
 		#show operation for debugging
 		print '!!!!Operation on local machine:'
 		for x in HDFShistory[0]:
@@ -218,6 +217,7 @@ class HomuraMeta:
 			print 'delete: '+x
 		for x in myhistory[2]:
 			print 'modify: '+x
+		return (HDFShistory[0],HDFShistory[1],HDFShistory[2],myhistory[0],myhistory[1],myhistory[2])
 
 	#This is the operation the dom1 did in the history!!
 	def __casualConsistentCompare(self,dom1,dom2):
@@ -295,13 +295,13 @@ class HomuraMeta:
 
 if __name__ == "__main__":
 	my_meta=HomuraMeta()
-	my_meta.path2Xml('/Users/xiaoyan/Desktop/usb')
+	my_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/B_now')
 	my_meta.saveXml('my.xml')
 
-	my_meta.path2Xml('/Users/xiaoyan/Desktop/checkpoint')
+	my_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/A_history')
 	my_meta.saveXml('history.xml')
 
-	my_meta.path2Xml('/Users/xiaoyan/Desktop/hdfs')
+	my_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/C_cloud')
 	my_meta.saveXml('cloud.xml')
 
 	my_meta.loadMyXml('my.xml')
@@ -310,5 +310,4 @@ if __name__ == "__main__":
 	my_meta.showMyXml()
 	my_meta.showSnapshotXml()
 	my_meta.showHDFSXml()
-	#my_meta.compareMy_Snapshot()
 	my_meta.getOperations()
