@@ -3,6 +3,7 @@ from hdfs import Config
 from homura_meta import HomuraMeta
 import time
 import os
+import shutil
 
 def log(message, error=0):
     if error == 0:
@@ -18,7 +19,7 @@ class HomuraFS():
         self.prompt = 'homura_fs $ '
         self.name = name
         self.local_xml = 'madoka.xml'
-        self.hdfs_xml = 'name/madoka.xml'
+        self.hdfs_xml = name + '/madoka.xml'
         self.hdfs_loc_xml = 'sayaka.xml'
         self.mount_root = os.getcwd() + '/test'
         self.meta = HomuraMeta()
@@ -31,6 +32,9 @@ class HomuraFS():
             if cmd == 'sync':
                 log('Syncing files')
                 self.sync_files()
+            if cmd == 'test':
+                log('Setting up test directory with default config')
+                self.__test()
             elif cmd == 'quit':
                 return
 
@@ -45,34 +49,46 @@ class HomuraFS():
         self.meta.mydoc = self.meta.tempdoc
 
         # fetch HDFS xml and store locally
-        self.create_file(self.hdfs_loc_xml, self.hdfs_xml, 1)
-        self.meta.loadHDFSXml(self.hdfs_loc_xml)
+        try:
+            log("Attempting to fetch HDFS xml")
+            self.update_file(self.hdfs_loc_xml, self.hdfs_xml, 1)
+            log("Loaded HDFS xml")
+            self.meta.loadHDFSXml(self.hdfs_loc_xml)
+        except:
+            # download entire folder and update
+            self.client.upload(self.name, self.mount_root, n_threads=0)
+            self.meta.path2Xml(self.mount_root)
+            self.meta.saveXml(self.local_xml, Xml='temp')
+            self.create_file(self.local_xml, self.hdfs_xml, 0)
+            return
 
         # find operations since last sync
-        my_ops, hdfs_ops = self.meta.getOperations()
+        (my_creates, my_deletes, my_modifies, 
+        hdfs_creates, hdfs_deletes, hdfs_modifies) = self.meta.getOperations()
+
+        root = self.mount_root
+        name = self.name
 
         # apply operations on current device
-        creates, deletes, modifies = my_ops
-        for loc_path, hdfs_path in creates:
-            self.create_file(loc_path, hdfs_path, 1)
-        for loc_path, hdfs_path in modifies:
-            self.update_file(loc_path, hdfs_path, 1)
-        for loc_path, hdfs_path in deletes:
-            self.delete_file(loc_path, 1)
+        for path in my_creates:
+            self.create_file(root + path, name + path, 1)
+        for path in my_modifies:
+            self.update_file(root + path, name + path, 1)
+        for path in my_deletes:
+            self.delete_file(root + path, 1)
 
         # apply operations on HDFS
-        creates, deletes, modifies = hdfs_ops
-        for loc_path, hdfs_path in creates:
-            self.create_file(loc_path, hdfs_path, 0)
-        for loc_path, hdfs_path in modifies:
-            self.update_file(loc_path, hdfs_path, 0)
-        for loc_path, hdfs_path in deletes:
-            self.delete_file(hdfs_path, 0)
-                
+        for path in hdfs_creates:
+            self.create_file(root + path, name + path, 0)
+        for path in hdfs_modifies:
+            self.update_file(root + path, name + path, 0)
+        for path in hdfs_deletes:
+            self.delete_file(name + path, 0)
+
         # update last sync for both HDFS and current device
         self.meta.path2Xml(self.mount_root)
         self.meta.saveXml(self.local_xml, Xml='temp')
-        self.update_file(self, self.local_xml, self.hdfs_xml, 0)
+        self.update_file(self.local_xml, self.hdfs_xml, 0)
 
         return
 
@@ -98,7 +114,7 @@ class HomuraFS():
                         writer.write(line)
         elif kyuubey == 1:
             log('Updating file ' + loc_path + ' locally')
-            with open(loc_path) as writer:
+            with open(loc_path, 'w') as writer:
                 with self.client.read(hdfs_path) as reader:
                     data = reader.read()
                     writer.write(data)
@@ -118,6 +134,47 @@ class HomuraFS():
         elif kyuubey == 1: # move file locally
             os.rename(src_path, dst_path)
             log('Moving file from ' + src_path + ' to ' + dst_path + ' locally')
+
+    def __test(self, test_no=1):
+        self.__reset_test()
+        if test_no == 1:
+            self.__config_basic()
+        elif test_no == 2:
+            self.__config_outer_empty()
+
+    def __reset_test(self)
+        root = self.mount_root
+        log('Resetting mount directory')
+        if os.path.exists(root):
+            shutil.rmtree(root)
+        os.makedirs(root)
+        
+    def __config_basic(self):
+        root = self.mount_root
+        log('Config 1: default')
+        with open(root + '/test1.txt', 'w') as writer:
+            writer.write('hi\nthere\n!\n')
+        with open(root + '/test2.txt', 'w') as writer:
+            writer.write('one-liner')
+        with open(root + '/test3.txt', 'w') as writer:
+            writer.write('')
+        os.makedirs(root + '/subdir')
+        with open(root + '/subdir' + 'test1.txt'), 'w') as writer:
+            writer.write('a different\ntest1.txt\nfile!\n')
+        os.makedirs(root + '/subdir/subsubdir')
+        with open(root + '/subdir' + 'test1.txt'), 'w') as writer:
+            writer.write('yet another different\ntest1.txt\nfile!\n')
+
+    def __config_outer_empty(self):
+        root = self.mount_root
+        log('Config 2: outer directory empty')
+        os.makedirs(root + '/subdir')
+        with open(root + '/subdir' + 'test1.txt'), 'w') as writer:
+            writer.write('a different\ntest1.txt\nfile!\n')
+        os.makedirs(root + '/subdir/subsubdir')
+        with open(root + '/subdir' + 'test1.txt'), 'w') as writer:
+            writer.write('yet another different\ntest1.txt\nfile!\n')
+
 
 
 if __name__ == "__main__":
