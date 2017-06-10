@@ -1,9 +1,12 @@
 
 from hdfs import Config
 from homura_meta import HomuraMeta
+#from device import existing_dev, add_dev, remove_dev
+#from monitor import Monitor_Start, Monitor_Stop
 import time
 import os
 import shutil
+import sys
 
 def log(message, error=0):
     if error == 0:
@@ -23,7 +26,9 @@ class HomuraFS():
         self.hdfs_loc_xml = 'sayaka.xml'
         self.mount_root = os.getcwd() + '/test'
         self.meta = HomuraMeta()
-
+        self.monitor = None
+        #if sys.platform.startswith('darwin'):
+        #    self.monitor = Monitor_Start()
 
     def shell_loop(self):
         while True:
@@ -36,8 +41,9 @@ class HomuraFS():
                 log('Setting up test directory with default config')
                 self.__test()
             elif cmd == 'quit':
+                #if self.monitor:
+                #    Monitor_Stop(self.monitor)
                 return
-
 
     def sync_files(self):
         # check if we have an old snapshot xml
@@ -142,7 +148,7 @@ class HomuraFS():
         elif test_no == 2:
             self.__config_outer_empty()
 
-    def __reset_test(self)
+    def __reset_test(self):
         root = self.mount_root
         log('Resetting mount directory')
         if os.path.exists(root):
@@ -159,20 +165,20 @@ class HomuraFS():
         with open(root + '/test3.txt', 'w') as writer:
             writer.write('')
         os.makedirs(root + '/subdir')
-        with open(root + '/subdir' + 'test1.txt'), 'w') as writer:
+        with open(root + '/subdir' + 'test1.txt', 'w') as writer:
             writer.write('a different\ntest1.txt\nfile!\n')
         os.makedirs(root + '/subdir/subsubdir')
-        with open(root + '/subdir' + 'test1.txt'), 'w') as writer:
+        with open(root + '/subdir' + 'test1.txt', 'w') as writer:
             writer.write('yet another different\ntest1.txt\nfile!\n')
 
     def __config_outer_empty(self):
         root = self.mount_root
         log('Config 2: outer directory empty')
         os.makedirs(root + '/subdir')
-        with open(root + '/subdir' + 'test1.txt'), 'w') as writer:
+        with open(root + '/subdir' + 'test1.txt', 'w') as writer:
             writer.write('a different\ntest1.txt\nfile!\n')
         os.makedirs(root + '/subdir/subsubdir')
-        with open(root + '/subdir' + 'test1.txt'), 'w') as writer:
+        with open(root + '/subdir' + 'test1.txt', 'w') as writer:
             writer.write('yet another different\ntest1.txt\nfile!\n')
 
 
