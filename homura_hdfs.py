@@ -2,11 +2,12 @@
 from hdfs import Config
 from homura_meta import HomuraMeta
 #from device import existing_dev, add_dev, remove_dev
-#from monitor import Monitor_Start, Monitor_Stop
+from monitor import Monitor_Start, Monitor_Stop
 import time
 import os
 import shutil
 import sys
+import logging
 
 def log(message, error=0):
     if error == 0:
@@ -27,12 +28,17 @@ class HomuraFS():
         self.mount_root = os.getcwd() + '/test'
         self.meta = HomuraMeta()
         self.monitor = None
-        #if sys.platform.startswith('darwin'):
-        #    self.monitor = Monitor_Start()
+        #print sys.platform
+        if sys.platform.startswith('darwin'):
+            logging.basicConfig(filename='mylog.log', level=logging.INFO)
+            self.monitor = Monitor_Start()
+
+
 
     def shell_loop(self):
         while True:
             cmd = raw_input(self.prompt)
+            print self.monitor.devs
 
             if cmd == 'sync':
                 log('Syncing files')
@@ -48,8 +54,8 @@ class HomuraFS():
                 except:
                     log('HDFS directory ' + dl_name + ' does not exist')
             elif cmd == 'quit':
-                #if self.monitor:
-                #    Monitor_Stop(self.monitor)
+                if self.monitor:
+                    Monitor_Stop(self.monitor)
                 return
 
     def sync_files(self):
@@ -194,4 +200,3 @@ if __name__ == "__main__":
     name = raw_input('Device name? ')
     fs = HomuraFS(name)
     fs.shell_loop()
-
