@@ -44,7 +44,7 @@ class HomuraFS():
                 dl_name = raw_input('Which HDFS directory to download to device?')
                 log('Downloading HDFS directory ' + dl_name + ' to local device')
                 try:
-                    self.create_file(self.mount_root, dlname, 1)
+                    self.create_file(self.mount_root, dl_name, 1)
                 except:
                     log('HDFS directory ' + dl_name + ' does not exist')
             elif cmd == 'quit':
@@ -76,7 +76,7 @@ class HomuraFS():
             return
 
         # find operations since last sync
-        (my_creates, my_deletes, my_modifies, 
+        (my_creates, my_deletes, my_modifies,
         hdfs_creates, hdfs_deletes, hdfs_modifies) = self.meta.getOperations()
 
         root = self.mount_root
@@ -139,7 +139,7 @@ class HomuraFS():
         elif kyuubey == 1: # delete file locally
             log('Deleting file ' + path + ' locally')
             os.remove(path)
-            
+
     def move_file(self, src_path, dst_path, kyuubey):
         if kyuubey == 0: # move file on HDFS
             log('Moving file from ' + src_path + ' to ' + dst_path + ' on HDFS')
@@ -161,7 +161,7 @@ class HomuraFS():
         if os.path.exists(root):
             shutil.rmtree(root)
         os.makedirs(root)
-        
+
     def __config_basic(self):
         root = self.mount_root
         log('Config 1: default')
@@ -191,6 +191,5 @@ class HomuraFS():
 
 
 if __name__ == "__main__":
-    fs = HomuraFS('pikachu')
+    fs = HomuraFS('jenny')
     fs.shell_loop()
-
