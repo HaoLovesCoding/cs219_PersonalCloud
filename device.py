@@ -44,6 +44,16 @@ def existing_dev():
             if '_items' in item:
                 ilist = item['_items']
                 for media in ilist:
+                    if 'Volumes' in media:
+                        for volume in media['Volumes']:
+                            di = {}
+                            di['Hname'] = media['_name']
+                            di['Man'] = media['manufacturer']
+                            di['PID'] = str(int(media['product_id'], 0))
+                            di['VID'] = str(int(media['vendor_id'].split(" ")[0], 0))
+                            di['Dname'] = volume['_name']
+                            di['Path'] = volume['mount_point']
+                            mounted.append(di)
                     if 'Media' in media:
                         for partition in media['Media']:
                             for volume in partition['volumes']:
@@ -67,6 +77,18 @@ def add_dev(dev, devs):
             if '_items' in item:
                 ilist = item['_items']
                 for media in ilist:
+                    if 'Volume' in media:
+                        if (dev['PID'] == str(int(media['product_id'],0)) and dev['VID'] == str(int(media['vendor_id'].split(" ")[0],0))): 
+                            for volume in ilist['volumes']:
+                                di = {}
+                                di['Hname'] = media['_name']
+                                di['Man'] = media['manufacturer']
+                                di['PID'] = str(int(media['product_id'], 0))
+                                di['VID'] = str(int(media['vendor_id'].split(" ")[0], 0))
+                                di['Dname'] = volume['_name']
+                                di['Path'] = volume['mount_point']
+                                devs.append(di)
+                                ds.append(di['Dname'])
                     if 'Media' in media:
                         if (dev['PID'] == str(int(media['product_id'],0)) and dev['VID'] == str(int(media['vendor_id'].split(" ")[0],0))): 
                             for partition in media['Media']:
