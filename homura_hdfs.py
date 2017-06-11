@@ -165,20 +165,20 @@ class HomuraFS():
         with open(root + '/test3.txt', 'w') as writer:
             writer.write('')
         os.makedirs(root + '/subdir')
-        with open(root + '/subdir' + 'test1.txt', 'w') as writer:
+        with open(root + '/subdir/test1.txt', 'w') as writer:
             writer.write('a different\ntest1.txt\nfile!\n')
         os.makedirs(root + '/subdir/subsubdir')
-        with open(root + '/subdir' + 'test1.txt', 'w') as writer:
+        with open(root + '/subdir/subsubdir/test1.txt', 'w') as writer:
             writer.write('yet another different\ntest1.txt\nfile!\n')
 
     def __config_outer_empty(self):
         root = self.mount_root
         log('Config 2: outer directory empty')
         os.makedirs(root + '/subdir')
-        with open(root + '/subdir' + 'test1.txt', 'w') as writer:
+        with open(root + '/subdir/test1.txt', 'w') as writer:
             writer.write('a different\ntest1.txt\nfile!\n')
         os.makedirs(root + '/subdir/subsubdir')
-        with open(root + '/subdir' + 'test1.txt', 'w') as writer:
+        with open(root + '/subdir/subsubdir/test1.txt', 'w') as writer:
             writer.write('yet another different\ntest1.txt\nfile!\n')
 
 
