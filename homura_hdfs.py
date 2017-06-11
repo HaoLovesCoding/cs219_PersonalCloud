@@ -9,6 +9,7 @@ import shutil
 import sys
 import logging
 
+
 def log(message, error=0):
     if error == 0:
         print 'Log:', message
@@ -18,12 +19,12 @@ def log(message, error=0):
 
 class HomuraFS():
 
-    def __init__(self, name):
+    def __init__(self,name):
         self.client = Config().get_client('dev')
         self.prompt = 'homura_fs $ '
-        self.name = name
+        self.name = name #TODO: Change the naming system
         self.local_xml = 'madoka.xml'
-        self.hdfs_xml = name + '/madoka.xml'
+        self.hdfs_xml = name + '/madoka.xml' #TODO: Change the naming system
         self.hdfs_loc_xml = 'sayaka.xml'
         self.mount_root = os.getcwd() + '/test'
         self.meta = HomuraMeta()
@@ -32,17 +33,36 @@ class HomuraFS():
         if sys.platform.startswith('darwin'):
             logging.basicConfig(filename='mylog.log', level=logging.INFO)
             self.monitor = Monitor_Start()
-
-
-
+            '''
+            for dev in self.monitor.devs:
+                devname = dev['Dname']
+                manufacture = dev['Man']
+                hname = dev['Hname']
+                is_sync = raw_input("Devname: {}, Hname: {}, Manufacture: {}. Do you want to sync?\n".format(devname, hname, manufacture))
+                #if is_sync == "yes":
+                    #self.name = devname
+                    #TODO: change the sync root
+                    #self.sync_files()
+            '''
     def shell_loop(self):
         while True:
             cmd = raw_input(self.prompt)
-            print self.monitor.devs
 
             if cmd == 'sync':
-                log('Syncing files')
-                self.sync_files()
+                print "Current device attached:"
+                for dev in self.monitor.devs:
+                    devname = dev['Dname']
+                    manufacture = dev['Man']
+                    hname = dev['Hname']
+                    print "Devname: {}, Hname: {}, Manufacture: {}.\n".format(devname, hname, manufacture)
+                D_sync = raw_input("Which device to sync:/n")
+
+                for dev in self.monitor.devs:
+                    if dev['Dname'] == D_sync:
+                        log('Syncing files')
+                        #self.name = D_sync
+                        #TODO: change the sync root
+                        self.sync_files()
             elif cmd == 'test':
                 log('Setting up test directory with default config')
                 self.__test()
