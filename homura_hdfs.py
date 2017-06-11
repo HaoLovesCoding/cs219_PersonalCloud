@@ -37,9 +37,16 @@ class HomuraFS():
             if cmd == 'sync':
                 log('Syncing files')
                 self.sync_files()
-            if cmd == 'test':
+            elif cmd == 'test':
                 log('Setting up test directory with default config')
                 self.__test()
+            elif cmd == 'download':
+                dl_name = raw_input('Which HDFS directory to download to device?')
+                log('Downloading HDFS directory ' + dl_name + ' to local device')
+                try:
+                    self.create_file(self.mount_root, dlname, 1)
+                except:
+                    log('HDFS directory ' + dl_name + ' does not exist')
             elif cmd == 'quit':
                 #if self.monitor:
                 #    Monitor_Stop(self.monitor)
@@ -105,10 +112,10 @@ class HomuraFS():
     # (i.e. hdfs becomes the "master")
     def create_file(self, loc_path, hdfs_path, kyuubey):
         if kyuubey == 0:
-            log('Creating file ' + hdfs_path + ' on HDFS')
+            log('Creating ' + hdfs_path + ' on HDFS')
             self.client.upload(hdfs_path, loc_path, n_threads=0)
         elif kyuubey == 1:
-            log('Creating file ' + loc_path + ' locally')
+            log('Creating ' + loc_path + ' locally')
             self.client.download(hdfs_path, loc_path, n_threads=0)
 
     def update_file(self, loc_path, hdfs_path, kyuubey):
