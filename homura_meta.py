@@ -57,7 +57,7 @@ class HomuraMeta:
             my_writer=open(path,'w')
             self.tempdoc.writexml(my_writer)
             my_writer.write('')
-            my_writer.close()            
+            my_writer.close()
         elif Xml=='my':
             my_writer=open(path,'w')
             self.mydoc.writexml(my_writer)
@@ -297,13 +297,13 @@ class HomuraMeta:
 
 if __name__ == "__main__":
     my_meta=HomuraMeta()
-    my_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/B_now')
+    my_meta.path2Xml('/Users/xiaoyan/Desktop/local')
     my_meta.saveXml('my.xml')
 
-    my_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/A_history')
+    my_meta.path2Xml('/Users/xiaoyan/Desktop/checkpoint')
     my_meta.saveXml('history.xml')
 
-    my_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/Syncronizer/C_cloud')
+    my_meta.path2Xml('/Users/xiaoyan/Desktop/hdfs')
     my_meta.saveXml('cloud.xml')
 
     my_meta.loadMyXml('my.xml')

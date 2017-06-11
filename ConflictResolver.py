@@ -64,9 +64,16 @@ class ConflictResolver(object):
                 if result == host_a:#leave host_a
                     idx = create_a.index(entry)
                     del create_a[idx]
+                    idx2 = create_b.index(entry)
+                    del create_b[idx2]
+                    modify_b.append(entry)
+
                 elif result == host_b:# leave host_b copy
                     idx = create_b.index(entry)
                     del create_b[idx]
+                    idx2 = create_a.index(entry)
+                    del create_a[idx2]
+                    modify_a.append(entry)
 
                 elif (result == "Both") or (result == "both"):
                     (local_dirpath,old_filename) = self.find_local_dir(entry)

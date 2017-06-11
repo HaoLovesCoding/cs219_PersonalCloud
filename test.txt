@@ -1,2 +1,0 @@
-This is a test file
-If the program works, this content should be shown on client console

@@ -1,9 +1,13 @@
 
 from hdfs import Config
 from homura_meta import HomuraMeta
+#from device import existing_dev, add_dev, remove_dev
+from monitor import Monitor_Start, Monitor_Stop
 import time
 import os
 import shutil
+import sys
+import logging
 
 def log(message, error=0):
     if error == 0:
@@ -23,21 +27,36 @@ class HomuraFS():
         self.hdfs_loc_xml = 'sayaka.xml'
         self.mount_root = os.getcwd() + '/test'
         self.meta = HomuraMeta()
+        self.monitor = None
+        #print sys.platform
+        if sys.platform.startswith('darwin'):
+            logging.basicConfig(filename='mylog.log', level=logging.INFO)
+            self.monitor = Monitor_Start()
+
 
 
     def shell_loop(self):
         while True:
             cmd = raw_input(self.prompt)
+            print self.monitor.devs
 
             if cmd == 'sync':
                 log('Syncing files')
                 self.sync_files()
-            if cmd == 'test':
+            elif cmd == 'test':
                 log('Setting up test directory with default config')
                 self.__test()
+            elif cmd == 'download':
+                dl_name = raw_input('Which HDFS directory to download to device? ')
+                log('Downloading HDFS directory ' + dl_name + ' to local device')
+                try:
+                    self.create_file(self.mount_root, dl_name, 1)
+                except:
+                    log('HDFS directory ' + dl_name + ' does not exist')
             elif cmd == 'quit':
+                if self.monitor:
+                    Monitor_Stop(self.monitor)
                 return
-
 
     def sync_files(self):
         # check if we have an old snapshot xml
@@ -63,7 +82,7 @@ class HomuraFS():
             return
 
         # find operations since last sync
-        (my_creates, my_deletes, my_modifies, 
+        (my_creates, my_deletes, my_modifies,
         hdfs_creates, hdfs_deletes, hdfs_modifies) = self.meta.getOperations()
 
         root = self.mount_root
@@ -99,10 +118,10 @@ class HomuraFS():
     # (i.e. hdfs becomes the "master")
     def create_file(self, loc_path, hdfs_path, kyuubey):
         if kyuubey == 0:
-            log('Creating file ' + hdfs_path + ' on HDFS')
+            log('Creating ' + hdfs_path + ' on HDFS')
             self.client.upload(hdfs_path, loc_path, n_threads=0)
         elif kyuubey == 1:
-            log('Creating file ' + loc_path + ' locally')
+            log('Creating ' + loc_path + ' locally')
             self.client.download(hdfs_path, loc_path, n_threads=0)
 
     def update_file(self, loc_path, hdfs_path, kyuubey):
@@ -126,7 +145,7 @@ class HomuraFS():
         elif kyuubey == 1: # delete file locally
             log('Deleting file ' + path + ' locally')
             os.remove(path)
-            
+
     def move_file(self, src_path, dst_path, kyuubey):
         if kyuubey == 0: # move file on HDFS
             log('Moving file from ' + src_path + ' to ' + dst_path + ' on HDFS')
@@ -142,13 +161,13 @@ class HomuraFS():
         elif test_no == 2:
             self.__config_outer_empty()
 
-    def __reset_test(self)
+    def __reset_test(self):
         root = self.mount_root
         log('Resetting mount directory')
         if os.path.exists(root):
             shutil.rmtree(root)
         os.makedirs(root)
-        
+
     def __config_basic(self):
         root = self.mount_root
         log('Config 1: default')
@@ -159,25 +178,25 @@ class HomuraFS():
         with open(root + '/test3.txt', 'w') as writer:
             writer.write('')
         os.makedirs(root + '/subdir')
-        with open(root + '/subdir' + 'test1.txt'), 'w') as writer:
+        with open(root + '/subdir/test1.txt', 'w') as writer:
             writer.write('a different\ntest1.txt\nfile!\n')
         os.makedirs(root + '/subdir/subsubdir')
-        with open(root + '/subdir' + 'test1.txt'), 'w') as writer:
+        with open(root + '/subdir/subsubdir/test1.txt', 'w') as writer:
             writer.write('yet another different\ntest1.txt\nfile!\n')
 
     def __config_outer_empty(self):
         root = self.mount_root
         log('Config 2: outer directory empty')
         os.makedirs(root + '/subdir')
-        with open(root + '/subdir' + 'test1.txt'), 'w') as writer:
+        with open(root + '/subdir/test1.txt', 'w') as writer:
             writer.write('a different\ntest1.txt\nfile!\n')
         os.makedirs(root + '/subdir/subsubdir')
-        with open(root + '/subdir' + 'test1.txt'), 'w') as writer:
+        with open(root + '/subdir/subsubdir/test1.txt', 'w') as writer:
             writer.write('yet another different\ntest1.txt\nfile!\n')
 
 
 
 if __name__ == "__main__":
-    fs = HomuraFS('pikachu')
+    name = raw_input('Device name? ')
+    fs = HomuraFS(name)
     fs.shell_loop()
-
