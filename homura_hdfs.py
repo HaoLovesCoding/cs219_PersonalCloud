@@ -41,7 +41,7 @@ class HomuraFS():
                 log('Setting up test directory with default config')
                 self.__test()
             elif cmd == 'download':
-                dl_name = raw_input('Which HDFS directory to download to device?')
+                dl_name = raw_input('Which HDFS directory to download to device? ')
                 log('Downloading HDFS directory ' + dl_name + ' to local device')
                 try:
                     self.create_file(self.mount_root, dl_name, 1)
@@ -191,5 +191,7 @@ class HomuraFS():
 
 
 if __name__ == "__main__":
-    fs = HomuraFS('jenny')
+    name = raw_input('Device name? ')
+    fs = HomuraFS(name)
     fs.shell_loop()
+
