@@ -65,8 +65,8 @@ class HomuraFS():
                     #self.name = id_mapping[dev_id]['UID']
                     self.name = ''
                     self.mount_root = id_mapping[dev_id]['Path']
-                    self.local_xml = self.mount_root + 'last_sync.xml'
-                    self.hdfs_loc_xml = self.mount_root + 'cur_hdfs.xml'
+                    self.local_xml = self.mount_root + '/last_sync.xml'
+                    self.hdfs_loc_xml = self.mount_root + '/cur_hdfs.xml'
                     log('Mount root is ' + self.mount_root)
                     log('Device xml file is ' + self.local_xml)
                     log('HDFS xml file is ' + self.hdfs_xml)
@@ -122,7 +122,7 @@ class HomuraFS():
             log("Fetching local snapshot xml from " + self.local_xml)
             self.meta.loadSnapshotXml(self.local_xml)
         else: # snapshot doesn't exist, so download everything
-            log("No local snapshot file was found")
+            log("No local snapshot file was found at " + self.local_xml)
             try:
                 self.download_all()
             except:
