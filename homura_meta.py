@@ -39,6 +39,8 @@ class HomuraMeta:
         else:
             node.setAttribute('path','/')
         for f in os.listdir(path):
+            if f[0]=='.':
+                continue
             fullpath=os.path.join(path,f)
             timestamp=os.path.getmtime(fullpath)
             if os.path.isdir(fullpath):
@@ -81,6 +83,8 @@ class HomuraMeta:
         print self.mydoc.toprettyxml()
     def showSnapshotXml(self):
         print self.Snapshotdoc.toprettyxml()
+    def showTempXml(self):
+        print self.tempdoc.toprettyxml()
 
     def loadMyXml(self,path):
         try:
@@ -295,6 +299,10 @@ class HomuraMeta:
 
 if __name__ == "__main__":
     my_meta=HomuraMeta()
+    my_meta.path2Xml('/Users/HaoWu/Documents/Code/CS219/github/sandbox')
+    my_meta.showTempXml()
+    '''
+    my_meta=HomuraMeta()
     my_meta.path2Xml('/Users/xiaoyan/Desktop/local')
     my_meta.saveXml('my.xml')
 
@@ -311,3 +319,4 @@ if __name__ == "__main__":
     my_meta.showSnapshotXml()
     my_meta.showHDFSXml()
     my_meta.getOperations()
+    '''
