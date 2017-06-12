@@ -78,24 +78,38 @@ class HomuraFS():
                 log('Setting up test directory with default config')
                 self.__test()
             elif cmd == 'download':
-                dl_name = raw_input('Which HDFS directory to download to device? ')
-                log('Downloading HDFS directory ' + dl_name + ' to local device')
-                try:
-                    self.create_file(self.mount_root, dl_name, 1)
-                except:
-                    log('HDFS directory ' + dl_name + ' does not exist')
-                    continue
-                self.meta.path2Xml(self.mount_root)
-                self.meta.saveXml(self.local_xml, Xml='temp')
+                pass
+                #dl_name = raw_input('Which HDFS directory to download to device? ')
+                #log('Downloading HDFS directory ' + dl_name + ' to local device')
+                #try:
+                #    self.create_file(self.mount_root, dl_name, 1)
+                #except:
+                #    log('HDFS directory ' + dl_name + ' does not exist')
+                #    continue
+                #self.meta.path2Xml(self.mount_root)
+                #self.meta.saveXml(self.local_xml, Xml='temp')
             elif cmd == 'quit':
                 if self.monitor:
                     Monitor_Stop(self.monitor)
                 return
 
+    def download_all(self):
+        log('Downloading all files from HDFS to local device')
+        try:
+            self.create_file(self.mount_root, '/')
+        except:
+            log('Error while downloading from HDFS')
+        self.meta.path2Xml(self.mount_root)
+        self.meta.saveXml(self.local_xml, Xml='temp')
+
     def sync_files(self):
         # check if we have an old snapshot xml
         if os.path.isfile(self.local_xml):
+            log("Fetching local snapshot xml from " + self.local_xml)
             self.meta.loadSnapshotXml(self.local_xml)
+        else: # snapshot doesn't exist, so download everything
+            log("No local snapshot file was found")
+            self.download_all()
 
         # Generate current xml for local
         self.meta.path2Xml(self.mount_root)
@@ -108,7 +122,6 @@ class HomuraFS():
             log("Loading HDFS xml")
             self.meta.loadHDFSXml(self.hdfs_loc_xml)
         except:
-            # download entire folder and update
             log("Could not find HDFS xml, so uploading everything")
             if not os.path.isfile(self.local_xml):
                 with open(self.local_xml, 'w') as writer:
