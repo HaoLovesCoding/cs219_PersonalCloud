@@ -101,7 +101,10 @@ class HomuraFS():
         try:
             self.create_file(self.mount_root, '', 1)
             for dir_or_file in os.listdir(self.mount_root + self.hdfs_root):
-                shutil.move(dir_os_file, self.mount_root)
+                if not dir_or_file.startswith('.'):
+                    shutil.move(dir_os_file, self.mount_root)
+            shutil.rmtree(self.mount_root + hdfs_root)
+                
             os.rmdir(self.mount_root + hdfs_root)
         except:
             log('Could not find XML in HDFS')
@@ -139,10 +142,10 @@ class HomuraFS():
                         writer.write('') # create dummy xml if not exist
                 self.client.upload(self.hdfs_root, self.mount_root, n_threads=0)
 
-                for dir_or_file in os.listdir(self.mount_root + self.hdfs_root):
+                for dir_or_file in os.listdir(self.mount_root):
                     if not dir_or_file.startswith('.'):
-                        shutil.move(dir_os_file, self.mount_root)
-                shutil.rmtree(self.mount_root + hdfs_root)
+                        self.client.upload(self.hdfs_root, dir_or_file,
+nthreads=0)
             
                 self.meta.path2Xml(self.mount_root)
                 self.meta.saveXml(self.local_xml, Xml='temp')
@@ -165,10 +168,10 @@ class HomuraFS():
                     writer.write('') # create dummy xml if not exist
             self.client.upload(self.hdfs_root, self.mount_root, n_threads=0)
 
-            for dir_or_file in os.listdir(self.mount_root + self.hdfs_root):
+            for dir_or_file in os.listdir(self.mount_root):
                 if not dir_or_file.startswith('.'):
-                    shutil.move(dir_os_file, self.mount_root)
-            shutil.rmtree(self.mount_root + hdfs_root)
+                    self.client.upload(self.hdfs_root, dir_or_file,
+nthreads=0)
 
             self.meta.path2Xml(self.mount_root)
             self.meta.saveXml(self.local_xml, Xml='temp')
