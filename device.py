@@ -29,7 +29,6 @@ from plistlib import readPlistFromString
 #                         if (pairs[1]).strip() == 'Yes':
 #                             di['Read-Only'] = 'Yes'
 #             mounted[dev] = di
-    
 #     return mounted
 
 
@@ -44,8 +43,11 @@ def existing_dev():
             if '_items' in item:
                 ilist = item['_items']
                 for media in ilist:
-                    if 'Volumes' in media:
-                        for volume in media['Volumes']:
+
+                    if 'volumes' in media:
+
+                        for volume in media['volumes']:
+
                             di = {}
                             di['Hname'] = media['_name']
                             di['Man'] = media['manufacturer']
@@ -79,9 +81,9 @@ def add_dev(dev, devs):
             if '_items' in item:
                 ilist = item['_items']
                 for media in ilist:
-                    if 'Volume' in media:
-                        if (dev['PID'] == str(int(media['product_id'],0)) and dev['VID'] == str(int(media['vendor_id'].split(" ")[0],0))): 
-                            for volume in ilist['volumes']:
+                    if 'volumes' in media:
+                        if (dev['PID'] == str(int(media['product_id'],0)) and dev['VID'] == str(int(media['vendor_id'].split(" ")[0],0))):
+                            for volume in media['volumes']:
                                 di = {}
                                 di['Hname'] = media['_name']
                                 di['Man'] = media['manufacturer']
