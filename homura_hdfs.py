@@ -133,7 +133,6 @@ class HomuraFS():
 
                 self.download_all()
             except:
-                self.upload_all()
                 log("Could not find HDFS xml, so uploading everything")
                 if not os.path.isfile(self.local_xml):
                     with open(self.local_xml, 'w') as writer:
@@ -154,7 +153,6 @@ class HomuraFS():
             log("Loading HDFS xml")
             self.meta.loadHDFSXml(self.hdfs_loc_xml)
         except:
-            self.upload_all()
             log("Could not find HDFS xml, so uploading everything")
             if not os.path.isfile(self.local_xml):
                 with open(self.local_xml, 'w') as writer:
