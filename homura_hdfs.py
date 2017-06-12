@@ -138,6 +138,13 @@ class HomuraFS():
                     with open(self.local_xml, 'w') as writer:
                         writer.write('') # create dummy xml if not exist
                 self.client.upload(self.name, self.mount_root, n_threads=0)
+
+                hdfs_root = '/cs219'
+                for dir_or_file in os.listdir(self.mount_root + hdfs_root):
+                    if not dir_or_file.startswith('.'):
+                        shutil.move(dir_os_file, self.mount_root)
+                shutil.rmtree(self.mount_root + hdfs_root)
+            
                 self.meta.path2Xml(self.mount_root)
                 self.meta.saveXml(self.local_xml, Xml='temp')
                 self.update_file(self.local_xml, self.hdfs_xml, 0)
@@ -158,6 +165,13 @@ class HomuraFS():
                 with open(self.local_xml, 'w') as writer:
                     writer.write('') # create dummy xml if not exist
             self.client.upload(self.name, self.mount_root, n_threads=0)
+
+            hdfs_root = '/cs219'
+            for dir_or_file in os.listdir(self.mount_root + hdfs_root):
+                if not dir_or_file.startswith('.'):
+                    shutil.move(dir_os_file, self.mount_root)
+            shutil.rmtree(self.mount_root + hdfs_root)
+
             self.meta.path2Xml(self.mount_root)
             self.meta.saveXml(self.local_xml, Xml='temp')
             self.update_file(self.local_xml, self.hdfs_xml, 0)
