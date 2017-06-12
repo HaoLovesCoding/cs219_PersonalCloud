@@ -140,7 +140,6 @@ class HomuraFS():
                 if not os.path.isfile(self.local_xml):
                     with open(self.local_xml, 'w') as writer:
                         writer.write('') # create dummy xml if not exist
-                self.client.upload(self.hdfs_root, self.mount_root, n_threads=0)
 
                 for dir_or_file in os.listdir(self.mount_root):
                     if not dir_or_file.startswith('.'):
@@ -166,7 +165,6 @@ nthreads=0)
             if not os.path.isfile(self.local_xml):
                 with open(self.local_xml, 'w') as writer:
                     writer.write('') # create dummy xml if not exist
-            self.client.upload(self.hdfs_root, self.mount_root, n_threads=0)
 
             for dir_or_file in os.listdir(self.mount_root):
                 if not dir_or_file.startswith('.'):
