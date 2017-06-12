@@ -99,6 +99,10 @@ class HomuraFS():
         log('Downloading all files from HDFS to local device')
         try:
             self.create_file(self.mount_root, '', 1)
+            hdfs_root = '/cs219'
+            for dir_or_file in os.listdir(self.mount_root + hdfs_root):
+                shutil.move(dir_os_file, self.mount_root)
+            os.rmdir(self.mount_root + hdfs_root)
         except:
             log('Could not find XML in HDFS')
             raise Error
@@ -118,28 +122,39 @@ class HomuraFS():
 
     def sync_files(self):
         # check if we have an old snapshot xml
-        if os.path.isfile(self.local_xml):
-            log("Fetching local snapshot xml from " + self.local_xml)
-            self.meta.loadSnapshotXml(self.local_xml)
-        else: # snapshot doesn't exist, so download everything
+        if not os.path.isfile(self.local_xml): # snapshot doesn't exist, so download everything
             log("No local snapshot file was found at " + self.local_xml)
             try:
+                # fetch HDFS xml and store locally
+                log("Attempting to fetch HDFS xml")
+                self.update_file(self.hdfs_loc_xml, self.hdfs_xml, 1)
+                log("Loading HDFS xml")
+                self.meta.loadHDFSXml(self.hdfs_loc_xml)
+
                 self.download_all()
             except:
                 self.upload_all()
+                log("Could not find HDFS xml, so uploading everything")
+                if not os.path.isfile(self.local_xml):
+                    with open(self.local_xml, 'w') as writer:
+                        writer.write('') # create dummy xml if not exist
+                self.client.upload(self.name, self.mount_root, n_threads=0)
+                self.meta.path2Xml(self.mount_root)
+                self.meta.saveXml(self.local_xml, Xml='temp')
+                self.update_file(self.local_xml, self.hdfs_xml, 0)
             return
 
-        # Generate current xml for local
-        self.meta.path2Xml(self.mount_root)
-        self.meta.mydoc = self.meta.tempdoc
+        log("Fetching local snapshot xml from " + self.local_xml)
+        self.meta.loadSnapshotXml(self.local_xml)
 
-        # fetch HDFS xml and store locally
         try:
+            # fetch HDFS xml and store locally
             log("Attempting to fetch HDFS xml")
             self.update_file(self.hdfs_loc_xml, self.hdfs_xml, 1)
             log("Loading HDFS xml")
             self.meta.loadHDFSXml(self.hdfs_loc_xml)
         except:
+            self.upload_all()
             log("Could not find HDFS xml, so uploading everything")
             if not os.path.isfile(self.local_xml):
                 with open(self.local_xml, 'w') as writer:
@@ -149,6 +164,10 @@ class HomuraFS():
             self.meta.saveXml(self.local_xml, Xml='temp')
             self.update_file(self.local_xml, self.hdfs_xml, 0)
             return
+
+        # Generate current xml for local
+        self.meta.path2Xml(self.mount_root)
+        self.meta.mydoc = self.meta.tempdoc
 
         # find operations since last sync
         (my_creates, my_deletes, my_modifies,
