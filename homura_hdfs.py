@@ -18,17 +18,16 @@ def log(message, error=0):
 
 class HomuraFS():
 
-    def __init__(self,name):
+    def __init__(self):
         self.client = Config().get_client('dev')
         self.prompt = 'homura_fs $ '
-        self.name = name #TODO: Change the naming system
-        self.local_xml = 'madoka.xml'
-        self.hdfs_xml = name + '/madoka.xml' #TODO: Change the naming system
-        self.hdfs_loc_xml = 'sayaka.xml'
+        self.name = None
+        self.local_xml = None
+        self.hdfs_xml = name + None
+        self.hdfs_loc_xml = None
         self.mount_root = os.getcwd() + '/test'
         self.meta = HomuraMeta()
         self.monitor = None
-        #print sys.platform
         if sys.platform.startswith('darwin'):
             logging.basicConfig(filename='mylog.log', level=logging.INFO)
             self.monitor = Monitor_Start()
@@ -43,26 +42,40 @@ class HomuraFS():
                     #TODO: change the sync root
                     #self.sync_files()
             '''
+
     def shell_loop(self):
         while True:
             cmd = raw_input(self.prompt)
 
             if cmd == 'sync':
-                print "Current device attached:"
+                print "Current devices attached:"
+                id_mapping = dict()
+                count = 1
                 for dev in self.monitor.devs:
                     devname = dev['Dname']
                     manufacture = dev['Man']
                     hname = dev['Hname']
-                    print dev
-                    print "Devname: {}, Hname: {}, Manufacture: {}.\n".format(devname, hname, manufacture)
-                D_sync = raw_input("Which device to sync:\n")
+                    id_mapping[count] = dev
+                    print "{}) Dname: {}, Hname: {}, Manufacture: {}.\n".format(count, devname, hname, manufacture)
+                    count += 1
+                dev_id = raw_input("Which device to sync:/n")
 
-                for dev in self.monitor.devs:
-                    if dev['Dname'] == D_sync:
-                        log('Syncing files')
-                        #self.name = D_sync
-                        #TODO: change the sync root
-                        self.sync_files()
+                if dev_id in id_mapping:
+                    self.name = id_mapping[dev_id]['UID']
+                    self.mount_root = id_mapping[dev_id]['Path']
+                    self.local_xml = self.mount_root + '/madoka.xml'
+                    self.hdfs_xml = self.name + '/madoka.xml'
+                    self.hdfs_loc_xml = self.mount_root + '/sayaka.xml'
+                    log('Mount root is ' + self.mount_root)
+                    log('Device xml file is ' + self.local_xml)
+                    log('HDFS xml file is ' + self.hdfs_xml)
+                    log('Copy of HDFS xml stored at ' + self.hdfs_loc_xml)
+                    log('Syncing files for device ' + id_mapping['Dname']
+                    return
+                    self.sync_files()
+                else:
+                    pass
+
             elif cmd == 'test':
                 log('Setting up test directory with default config')
                 self.__test()
@@ -217,6 +230,7 @@ class HomuraFS():
 
 
 if __name__ == "__main__":
-    name = raw_input('Device name? ')
-    fs = HomuraFS(name)
+    #name = raw_input('Device name? ')
+    fs = HomuraFS()
     fs.shell_loop()
+
