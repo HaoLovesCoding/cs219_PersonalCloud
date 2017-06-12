@@ -54,8 +54,9 @@ class HomuraFS():
                     devname = dev['Dname']
                     manufacture = dev['Man']
                     hname = dev['Hname']
+                    print dev
                     print "Devname: {}, Hname: {}, Manufacture: {}.\n".format(devname, hname, manufacture)
-                D_sync = raw_input("Which device to sync:/n")
+                D_sync = raw_input("Which device to sync:\n")
 
                 for dev in self.monitor.devs:
                     if dev['Dname'] == D_sync:
