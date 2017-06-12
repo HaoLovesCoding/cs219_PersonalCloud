@@ -229,8 +229,6 @@ class HomuraMeta:
         while my_q and Snapshot_q:
             my_cur=my_q.pop(0)
             Snapshot_cur=Snapshot_q.pop(0)
-            print my_cur
-            print Snapshot_cur
             intersect1,intersect2=self.__intersectByWeakStd(my_cur.childNodes,Snapshot_cur.childNodes)
             self.__findOperationInHistory_2(my_cur.childNodes,Snapshot_cur.childNodes,createSet,deleteSet,modifySet)
             my_q+=intersect1
