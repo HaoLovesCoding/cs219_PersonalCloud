@@ -52,6 +52,7 @@ class HomuraFS():
                 id_mapping = dict()
                 count = 1
                 for dev in self.monitor.devs:
+                    #print dev
                     devname = dev['Dname']
                     manufacture = dev['Man']
                     hname = dev['Hname']
