@@ -63,15 +63,14 @@ class HomuraFS():
                 if dev_id in id_mapping:
                     self.name = id_mapping[dev_id]['UID']
                     self.mount_root = id_mapping[dev_id]['Path']
-                    self.local_xml = self.mount_root + '/madoka.xml'
-                    self.hdfs_xml = self.name + '/madoka.xml'
-                    self.hdfs_loc_xml = self.mount_root + '/sayaka.xml'
+                    self.local_xml = self.mount_root + '/last_sync.xml'
+                    self.hdfs_xml = self.name + '/last_sync.xml'
+                    self.hdfs_loc_xml = self.mount_root + '/cur_hdfs.xml'
                     log('Mount root is ' + self.mount_root)
                     log('Device xml file is ' + self.local_xml)
                     log('HDFS xml file is ' + self.hdfs_xml)
                     log('Copy of HDFS xml stored at ' + self.hdfs_loc_xml)
                     log('Syncing files for device ' + id_mapping[dev_id]['Dname'])
-                    #return
                     self.sync_files()
                 else:
                     pass
@@ -104,10 +103,14 @@ class HomuraFS():
         try:
             log("Attempting to fetch HDFS xml")
             self.update_file(self.hdfs_loc_xml, self.hdfs_xml, 1)
-            log("Loaded HDFS xml")
+            log("Loading HDFS xml")
             self.meta.loadHDFSXml(self.hdfs_loc_xml)
         except:
             # download entire folder and update
+            log("Could not find HDFS xml, so uploading everything")
+            if not os.path.isfile(self.local_xml):
+                with open(self.local_xml, 'w') as writer:
+                    writer.write('') # create dummy xml if not exist
             self.client.upload(self.name, self.mount_root, n_threads=0)
             self.meta.path2Xml(self.mount_root)
             self.meta.saveXml(self.local_xml, Xml='temp')
