@@ -62,7 +62,8 @@ class HomuraFS():
                 dev_id = int(raw_input("Which device to sync:\n"))
 
                 if dev_id in id_mapping:
-                    self.name = id_mapping[dev_id]['UID']
+                    #self.name = id_mapping[dev_id]['UID']
+                    self.name = ''
                     self.mount_root = id_mapping[dev_id]['Path']
                     self.local_xml = self.mount_root + '/last_sync.xml'
                     self.hdfs_loc_xml = self.mount_root + '/cur_hdfs.xml'
@@ -97,11 +98,19 @@ class HomuraFS():
     def download_all(self):
         log('Downloading all files from HDFS to local device')
         try:
-            self.create_file(self.mount_root, '/')
+            self.create_file(self.mount_root, '', 1)
         except:
-            log('Error while downloading from HDFS')
+            log('Could not find XML in HDFS')
+            raise Error
         self.meta.path2Xml(self.mount_root)
         self.meta.saveXml(self.local_xml, Xml='temp')
+
+    def upload_all(self):
+        log('Uploading all files from local device to HDFS')
+        try:
+            self.create_file(self.mount_root, '', 0)
+        except:
+            log('Error while uploading to HDFS')
 
     def sync_files(self):
         # check if we have an old snapshot xml
@@ -110,7 +119,11 @@ class HomuraFS():
             self.meta.loadSnapshotXml(self.local_xml)
         else: # snapshot doesn't exist, so download everything
             log("No local snapshot file was found")
-            self.download_all()
+            try:
+                self.download_all()
+            except:
+                self.upload_all()
+            return
 
         # Generate current xml for local
         self.meta.path2Xml(self.mount_root)
@@ -138,7 +151,7 @@ class HomuraFS():
         hdfs_creates, hdfs_deletes, hdfs_modifies) = self.meta.getOperations()
 
         root = self.mount_root
-        name = '/' # instead of self.name, use fully shared root for now
+        name = '' # instead of self.name, use fully shared root for now
 
         # apply operations on current device
         for path in my_creates: # create top-level only if already have
