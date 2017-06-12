@@ -71,7 +71,7 @@ class HomuraFS():
                     log('HDFS xml file is ' + self.hdfs_xml)
                     log('Copy of HDFS xml stored at ' + self.hdfs_loc_xml)
                     log('Syncing files for device ' + id_mapping[dev_id]['Dname'])
-                    return
+                    #return
                     self.sync_files()
                 else:
                     pass
