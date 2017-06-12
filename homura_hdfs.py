@@ -23,9 +23,9 @@ class HomuraFS():
         self.prompt = 'homura_fs $ '
         self.name = None
         self.local_xml = None
-        self.hdfs_xml = None
+        self.hdfs_xml = 'last_sync.xml'
         self.hdfs_loc_xml = None
-        self.mount_root = os.getcwd() + '/test'
+        self.mount_root = None #os.getcwd() + '/test'
         self.meta = HomuraMeta()
         self.monitor = None
         if sys.platform.startswith('darwin'):
@@ -64,7 +64,6 @@ class HomuraFS():
                     self.name = id_mapping[dev_id]['UID']
                     self.mount_root = id_mapping[dev_id]['Path']
                     self.local_xml = self.mount_root + '/last_sync.xml'
-                    self.hdfs_xml = self.name + '/last_sync.xml'
                     self.hdfs_loc_xml = self.mount_root + '/cur_hdfs.xml'
                     log('Mount root is ' + self.mount_root)
                     log('Device xml file is ' + self.local_xml)
@@ -85,6 +84,9 @@ class HomuraFS():
                     self.create_file(self.mount_root, dl_name, 1)
                 except:
                     log('HDFS directory ' + dl_name + ' does not exist')
+                    continue
+                self.meta.path2Xml(self.mount_root)
+                self.meta.saveXml(self.local_xml, Xml='temp')
             elif cmd == 'quit':
                 if self.monitor:
                     Monitor_Stop(self.monitor)
@@ -122,11 +124,12 @@ class HomuraFS():
         hdfs_creates, hdfs_deletes, hdfs_modifies) = self.meta.getOperations()
 
         root = self.mount_root
-        name = self.name
+        name = '/' # instead of self.name, use fully shared root for now
 
         # apply operations on current device
-        for path in my_creates:
-            self.create_file(root + path, name + path, 1)
+        for path in my_creates: # create top-level only if already have
+            if path.count('/') > 1: # not top-level create
+                self.create_file(root + path, name + path, 1)
         for path in my_modifies:
             self.update_file(root + path, name + path, 1)
         for path in my_deletes:
