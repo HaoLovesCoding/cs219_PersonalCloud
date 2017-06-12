@@ -1,4 +1,3 @@
-
 from hdfs import Config
 from homura_meta import HomuraMeta
 #from device import existing_dev, add_dev, remove_dev
