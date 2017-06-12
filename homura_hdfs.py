@@ -109,6 +109,7 @@ class HomuraFS():
         log('Uploading all files from local device to HDFS')
         try:
             for dir_or_file in os.listdir(self.mount_root):
+		log('Uploading ' + self.mount_root + '/' + dir_or_file)
                 self.create_file(self.mount_root + '/'+ dir_or_file, '', 0)
         except:
             log('Error while uploading to HDFS')
