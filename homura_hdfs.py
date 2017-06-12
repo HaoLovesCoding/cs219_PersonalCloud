@@ -23,7 +23,7 @@ class HomuraFS():
         self.prompt = 'homura_fs $ '
         self.name = None
         self.local_xml = None
-        self.hdfs_xml = name + None
+        self.hdfs_xml = None
         self.hdfs_loc_xml = None
         self.mount_root = os.getcwd() + '/test'
         self.meta = HomuraMeta()
@@ -58,7 +58,7 @@ class HomuraFS():
                     id_mapping[count] = dev
                     print "{}) Dname: {}, Hname: {}, Manufacture: {}.\n".format(count, devname, hname, manufacture)
                     count += 1
-                dev_id = raw_input("Which device to sync:/n")
+                dev_id = raw_input("Which device to sync:\n")
 
                 if dev_id in id_mapping:
                     self.name = id_mapping[dev_id]['UID']
@@ -70,7 +70,7 @@ class HomuraFS():
                     log('Device xml file is ' + self.local_xml)
                     log('HDFS xml file is ' + self.hdfs_xml)
                     log('Copy of HDFS xml stored at ' + self.hdfs_loc_xml)
-                    log('Syncing files for device ' + id_mapping['Dname']
+                    log('Syncing files for device ' + id_mapping['Dname'])
                     return
                     self.sync_files()
                 else:
@@ -233,4 +233,3 @@ if __name__ == "__main__":
     #name = raw_input('Device name? ')
     fs = HomuraFS()
     fs.shell_loop()
-
