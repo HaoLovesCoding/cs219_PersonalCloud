@@ -114,7 +114,7 @@ class HomuraFS():
             self.client.upload(self.name, self.mount_root, n_threads=0)
             self.meta.path2Xml(self.mount_root)
             self.meta.saveXml(self.local_xml, Xml='temp')
-            self.create_file(self.local_xml, self.hdfs_xml, 0)
+            self.update_file(self.local_xml, self.hdfs_xml, 0)
             return
 
         # find operations since last sync
