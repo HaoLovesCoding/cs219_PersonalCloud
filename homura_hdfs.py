@@ -109,7 +109,7 @@ class HomuraFS():
         log('Uploading all files from local device to HDFS')
         try:
             for dir_or_file in os.listdir(self.mount_root):
-		log('Uploading ' + self.mount_root + '/' + dir_or_file)
+                log('Uploading ' + self.mount_root + '/' + dir_or_file)
                 self.create_file(self.mount_root + '/'+ dir_or_file, '', 0)
         except:
             log('Error while uploading to HDFS')
@@ -157,8 +157,8 @@ class HomuraFS():
 
         # apply operations on current device
         for path in my_creates: # create top-level only if already have
-            if path.count('/') > 1: # not top-level create
-                self.create_file(root + path, name + path, 1)
+            #if path.count('/') > 1: # not top-level create
+            self.create_file(root + path, name + path, 1)
         for path in my_modifies:
             self.update_file(root + path, name + path, 1)
         for path in my_deletes:
