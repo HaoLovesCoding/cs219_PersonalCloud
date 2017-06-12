@@ -26,6 +26,7 @@ class HomuraFS():
         self.hdfs_xml = 'last_sync.xml'
         self.hdfs_loc_xml = None
         self.mount_root = None #os.getcwd() + '/test'
+        self.hdfs_root = '/cs219'
         self.meta = HomuraMeta()
         self.monitor = None
         if sys.platform.startswith('darwin'):
@@ -99,8 +100,7 @@ class HomuraFS():
         log('Downloading all files from HDFS to local device')
         try:
             self.create_file(self.mount_root, '', 1)
-            hdfs_root = '/cs219'
-            for dir_or_file in os.listdir(self.mount_root + hdfs_root):
+            for dir_or_file in os.listdir(self.mount_root + self.hdfs_root):
                 shutil.move(dir_os_file, self.mount_root)
             os.rmdir(self.mount_root + hdfs_root)
         except:
@@ -137,10 +137,9 @@ class HomuraFS():
                 if not os.path.isfile(self.local_xml):
                     with open(self.local_xml, 'w') as writer:
                         writer.write('') # create dummy xml if not exist
-                self.client.upload(self.name, self.mount_root, n_threads=0)
+                self.client.upload(self.hdfs_root, self.mount_root, n_threads=0)
 
-                hdfs_root = '/cs219'
-                for dir_or_file in os.listdir(self.mount_root + hdfs_root):
+                for dir_or_file in os.listdir(self.mount_root + self.hdfs_root):
                     if not dir_or_file.startswith('.'):
                         shutil.move(dir_os_file, self.mount_root)
                 shutil.rmtree(self.mount_root + hdfs_root)
@@ -164,10 +163,9 @@ class HomuraFS():
             if not os.path.isfile(self.local_xml):
                 with open(self.local_xml, 'w') as writer:
                     writer.write('') # create dummy xml if not exist
-            self.client.upload(self.name, self.mount_root, n_threads=0)
+            self.client.upload(self.hdfs_root, self.mount_root, n_threads=0)
 
-            hdfs_root = '/cs219'
-            for dir_or_file in os.listdir(self.mount_root + hdfs_root):
+            for dir_or_file in os.listdir(self.mount_root + self.hdfs_root):
                 if not dir_or_file.startswith('.'):
                     shutil.move(dir_os_file, self.mount_root)
             shutil.rmtree(self.mount_root + hdfs_root)
