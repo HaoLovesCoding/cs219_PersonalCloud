@@ -107,13 +107,14 @@ class HomuraFS():
 
     def upload_all(self):
         log('Uploading all files from local device to HDFS')
-        try:
+        #try:
+        if True:
             print os.listdir(self.mount_root)
             for dir_or_file in os.listdir(self.mount_root):
                 log('Uploading ' + self.mount_root + '/' + dir_or_file)
                 self.create_file(self.mount_root + '/'+ dir_or_file, '', 0)
-        except:
-            log('Error while uploading to HDFS')
+        #except:
+        #    log('Error while uploading to HDFS')
 
     def sync_files(self):
         # check if we have an old snapshot xml
