@@ -17,7 +17,8 @@ class HomuraMeta:
 
     def path2Xml(self,path):
         if self.tempdoc!=None:
-            print 'Warning! tempdoc is being overwritten'
+            pass
+            #print 'Warning! tempdoc is being overwritten'
         try:
             self.tempdoc=Document()
             self.tempdoc.appendChild(self.__path2XmlHelper(path,len(path)))
@@ -204,8 +205,13 @@ class HomuraMeta:
     def getOperations(self):
         myhistory=list(self.compareMy_Snapshot())
         HDFShistory=list(self.compareHDFS_Snapshot())
+        print 'my'
+        print myhistory
+        print 'HDFS'
+        print HDFShistory
         self.myresolver.resolve(HDFShistory,myhistory,'local','hdfs')
         #show operation for debugging
+        print "----------------------------"
         print '!!!!Operation on local machine:'
         for x in HDFShistory[0]:
             print 'create: '+x
@@ -214,6 +220,7 @@ class HomuraMeta:
         for x in HDFShistory[2]:
             print 'modify: '+x
 
+        print "----------------------------"
         print '!!!!Operation on HDFS:'
         for x in myhistory[0]:
             print 'create: '+x
@@ -221,6 +228,7 @@ class HomuraMeta:
             print 'delete: '+x
         for x in myhistory[2]:
             print 'modify: '+x
+        print "----------------------------"
         return (HDFShistory[0],HDFShistory[1],HDFShistory[2],myhistory[0],myhistory[1],myhistory[2])
 
     #This is the operation the dom1 did in the history!!
@@ -238,12 +246,14 @@ class HomuraMeta:
             my_q+=intersect1
             Snapshot_q+=intersect2
         deleteSet=list(reversed(deleteSet))
+        '''
         for x in deleteSet:
             print 'delete '+x
         for x in createSet:
             print 'create '+x
         for x in modifySet:
             print 'modify '+x
+        '''
         return (createSet,deleteSet,modifySet)
 
     def __BFS_from_node(self,node,some_list):

@@ -11,7 +11,8 @@ import logging
 
 def log(message, error=0):
     if error == 0:
-        print 'Log:', message
+        #print 'Log:', message
+        pass
     else:
         print 'Error:', message
 
@@ -101,17 +102,17 @@ class HomuraFS():
         #try:
         if True:
             self.create_file(self.mount_root, self.hdfs_root, 1)
-            print self.mount_root + self.hdfs_root
-            print os.listdir(self.mount_root + self.hdfs_root)
+            #print self.mount_root + self.hdfs_root
+            #print os.listdir(self.mount_root + self.hdfs_root)
             for dir_or_file in os.listdir(self.mount_root + self.hdfs_root):
-                print dir_or_file
+                #print dir_or_file
                 if not dir_or_file.startswith('.'):
-                    print 'test'
-                    print 'source: ' + self.mount_root + self.hdfs_root + '/' + dir_or_file
-                    print 'dest: ' + self.mount_root
+                    #print 'test'
+                    #print 'source: ' + self.mount_root + self.hdfs_root + '/' + dir_or_file
+                    #print 'dest: ' + self.mount_root
                     shutil.move(self.mount_root + self.hdfs_root + '/' + dir_or_file, self.mount_root)
-                    print "successfully moved file : {}".format(dir_or_file)
-            print 'deleting ' + self.mount_root + self.hdfs_root
+                    #print "successfully moved file : {}".format(dir_or_file)
+            #print 'deleting ' + self.mount_root + self.hdfs_root
             shutil.rmtree(self.mount_root + self.hdfs_root)
         #except:
         #    log('Could not find path in HDFS')
@@ -123,7 +124,7 @@ class HomuraFS():
         log('Uploading all files from local device to HDFS')
         #try:
         if True:
-            print os.listdir(self.mount_root)
+            #print os.listdir(self.mount_root)
             for dir_or_file in os.listdir(self.mount_root):
                 if not dir_or_file.startswith('.'):
                     log('Uploading ' + self.mount_root + '/' + dir_or_file)
@@ -196,6 +197,11 @@ class HomuraFS():
         # Generate current xml for local
         self.meta.path2Xml(self.mount_root)
         self.meta.mydoc = self.meta.tempdoc
+
+        print 'HDFS XML:'
+        self.meta.showHDFSXml()
+        print '---\nSnapshot Xml'
+        self.meta.showSnapshotXml()
 
         # find operations since last sync
         (my_creates, my_deletes, my_modifies,

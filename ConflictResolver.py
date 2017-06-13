@@ -14,6 +14,8 @@ class ConflictResolver(object):
         create_a = list_a[0]
         create_b = list_b[0]
 
+
+
         # solve deletion conflict
 
         intersect = filter(lambda x: x in delete_a, delete_b)
@@ -23,7 +25,6 @@ class ConflictResolver(object):
             del delete_a[idx1]
             idx2 = delete_b.index(entry)
             del delete_b[idx2]
-
 
         # solve modification conflict
 
@@ -127,6 +128,24 @@ class ConflictResolver(object):
                 idx = modify_b.index(entry)
                 del modify_b[idx]
 
+
+'''
+        intersect = filter(lambda x: x in create_b, delete_b)
+
+        for entry in intersect:
+            idx1 = create_b.index(entry)
+            del create_b[idx1]
+            idx2 = delete_b.index(entry)
+            del delete_b[idx2]
+
+        intersect = filter(lambda x: x in create_a, delete_a)
+
+        for entry in intersect:
+            idx1 = create_a.index(entry)
+            del create_a[idx1]
+            idx2 = delete_a.index(entry)
+            del delete_a[idx2]
+'''
 
         rlist_a = [create_a,delete_a,modify_a]
         rlist_b = [create_b,delete_b,modify_b]
