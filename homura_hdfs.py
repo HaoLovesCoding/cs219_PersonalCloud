@@ -101,6 +101,7 @@ class HomuraFS():
         #try:
         if True:
             self.create_file(self.mount_root, self.hdfs_root, 1)
+            print self.mount_root + self.hdfs_root
             for dir_or_file in os.listdir(self.mount_root + self.hdfs_root):
                 print dir_or_file
                 if not dir_or_file.startswith('.'):
