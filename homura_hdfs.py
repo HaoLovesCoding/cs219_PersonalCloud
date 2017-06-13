@@ -100,7 +100,7 @@ class HomuraFS():
         log('Downloading all files from HDFS to local device')
         #try:
         if True:
-            self.create_file(self.mount_root, '', 1)
+            self.create_file(self.mount_root, self.hdfs_root, 1)
             for dir_or_file in os.listdir(self.mount_root + self.hdfs_root):
                 if not dir_or_file.startswith('.'):
                     shutil.move(dir_os_file, self.mount_root)
@@ -188,7 +188,7 @@ class HomuraFS():
         hdfs_creates, hdfs_deletes, hdfs_modifies) = self.meta.getOperations()
 
         root = self.mount_root
-        name = '' # instead of self.name, use fully shared root for now
+        name = self.hdfs_root
 
         # apply operations on current device
         for path in my_creates: # create top-level only if already have
