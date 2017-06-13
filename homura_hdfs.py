@@ -143,8 +143,7 @@ class HomuraFS():
 
                 for dir_or_file in os.listdir(self.mount_root):
                     if not dir_or_file.startswith('.'):
-                        self.client.upload(self.hdfs_root, dir_or_file,
-nthreads=0)
+                        self.client.upload(self.hdfs_root, self.mount_root + '/' + dir_or_file, nthreads=0)
             
                 self.meta.path2Xml(self.mount_root)
                 self.meta.saveXml(self.local_xml, Xml='temp')
@@ -168,8 +167,7 @@ nthreads=0)
 
             for dir_or_file in os.listdir(self.mount_root):
                 if not dir_or_file.startswith('.'):
-                    self.client.upload(self.hdfs_root, dir_or_file,
-nthreads=0)
+                    self.client.upload(self.hdfs_root, self.mount_root + '/' + dir_or_file, nthreads=0)
 
             self.meta.path2Xml(self.mount_root)
             self.meta.saveXml(self.local_xml, Xml='temp')
