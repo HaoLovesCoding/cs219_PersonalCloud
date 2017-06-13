@@ -39,7 +39,10 @@ class HomuraMeta:
             node.setAttribute('path',path[rootDirLen:]+'/')
         else:
             node.setAttribute('path','/')
-        for f in os.listdir(path):
+        
+        test_list = [i for i in os.listdir(path)]
+        test_list.sort()
+        for f in test_list:
             if f[0]=='.':
                 continue
             fullpath=os.path.join(path,f)
