@@ -130,7 +130,8 @@ class HomuraFS():
         # check if we have an old snapshot xml
         if not os.path.isfile(self.local_xml): # snapshot doesn't exist, so download everything
             log("No local snapshot file was found at " + self.local_xml)
-            try:
+            #try:
+            if True:
                 # fetch HDFS xml and store locally
                 log("Attempting to fetch HDFS xml")
                 self.update_file(self.hdfs_loc_xml, self.hdfs_xml, 1)
@@ -138,7 +139,8 @@ class HomuraFS():
                 self.meta.loadHDFSXml(self.hdfs_loc_xml)
 
                 self.download_all()
-            except:
+            #except:
+            else:
                 log("Could not find HDFS xml, so uploading everything")
                 if not os.path.isfile(self.local_xml):
                     with open(self.local_xml, 'w') as writer:
