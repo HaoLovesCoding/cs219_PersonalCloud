@@ -102,12 +102,14 @@ class HomuraFS():
         if True:
             self.create_file(self.mount_root, self.hdfs_root, 1)
             print self.mount_root + self.hdfs_root
+            print os.listdir(self.mount_root + self.hdfs_root)
             for dir_or_file in os.listdir(self.mount_root + self.hdfs_root):
                 print dir_or_file
                 if not dir_or_file.startswith('.'):
-                    print 'source: ' + self.mount_root + self.hdfs_root + '/' + dir_os_file
+                    print 'test'
+                    print 'source: ' + self.mount_root + self.hdfs_root + '/' + dir_or_file
                     print 'dest: ' + self.mount_root
-                    shutil.move(self.mount_root + self.hdfs_root + '/' + dir_os_file, self.mount_root)
+                    shutil.move(self.mount_root + self.hdfs_root + '/' + dir_or_file, self.mount_root)
             print 'deleting ' + self.mount_root + self.hdfs_root
             shutil.rmtree(self.mount_root + self.hdfs_root)
         #except:
