@@ -104,7 +104,7 @@ class HomuraFS():
             for dir_or_file in os.listdir(self.mount_root + self.hdfs_root):
                 if not dir_or_file.startswith('.'):
                     shutil.move(dir_os_file, self.mount_root)
-            shutil.rmtree(self.mount_root + hdfs_root)
+            shutil.rmtree(self.mount_root + '/' + hdfs_root)
         #except:
         #    log('Could not find path in HDFS')
         #    raise Error
