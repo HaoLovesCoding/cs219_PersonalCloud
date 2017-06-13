@@ -141,6 +141,7 @@ class HomuraFS():
                 log("Loading HDFS xml")
                 self.meta.loadHDFSXml(self.hdfs_loc_xml)
 
+                os.remove(self.hdfs_loc_xml)
                 self.download_all()
             except:
                 log("Could not find HDFS xml, so uploading everything")
