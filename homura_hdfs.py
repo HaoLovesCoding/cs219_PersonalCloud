@@ -110,6 +110,7 @@ class HomuraFS():
                     print 'source: ' + self.mount_root + self.hdfs_root + '/' + dir_or_file
                     print 'dest: ' + self.mount_root
                     shutil.move(self.mount_root + self.hdfs_root + '/' + dir_or_file, self.mount_root)
+                    print "successfully moved file : {}".format(dir_or_file)
             print 'deleting ' + self.mount_root + self.hdfs_root
             shutil.rmtree(self.mount_root + self.hdfs_root)
         #except:
