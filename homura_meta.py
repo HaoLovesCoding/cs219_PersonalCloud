@@ -208,14 +208,14 @@ class HomuraMeta:
     def getOperations(self):
         myhistory=list(self.compareMy_Snapshot())
         HDFShistory=list(self.compareHDFS_Snapshot())
-        print 'my'
-        print myhistory
-        print 'HDFS'
-        print HDFShistory
+        #print 'my'
+        #print myhistory
+        #print 'HDFS'
+        #print HDFShistory
         self.myresolver.resolve(HDFShistory,myhistory,'local','hdfs')
         #show operation for debugging
         print "----------------------------"
-        print '!!!!Operation on local machine:'
+        print 'Operation on local machine:'
         for x in HDFShistory[0]:
             print 'create: '+x
         for x in HDFShistory[1]:
@@ -224,7 +224,7 @@ class HomuraMeta:
             print 'modify: '+x
 
         print "----------------------------"
-        print '!!!!Operation on HDFS:'
+        print 'Operation on HDFS:'
         for x in myhistory[0]:
             print 'create: '+x
         for x in myhistory[1]:

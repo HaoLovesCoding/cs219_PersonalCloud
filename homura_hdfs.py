@@ -53,6 +53,10 @@ class HomuraFS():
                 print "Current devices attached:"
                 id_mapping = dict()
                 count = 1
+
+                if len(self.monitor.devs) == 0:
+                    print "No device attached"
+                    continue 
                 for dev in self.monitor.devs:
                     #print dev
                     devname = dev['Dname']
@@ -62,6 +66,9 @@ class HomuraFS():
                     print "{}) Dname: {}, Hname: {}, Manufacture: {}.\n".format(count, devname, hname, manufacture)
                     count += 1
                 dev_id = int(raw_input("Which device to sync:\n"))
+
+                if dev_id == 0:
+                    continue
 
                 if dev_id in id_mapping:
                     #self.name = id_mapping[dev_id]['UID']
