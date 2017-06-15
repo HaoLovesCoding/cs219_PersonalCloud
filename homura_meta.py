@@ -26,6 +26,13 @@ class HomuraMeta:
             print 'Path Reading Warning: File or directory not exists'
         return
 
+    def emptyXml(self):
+        try:
+            self.tempdoc=Document()
+        except Exception:
+            print 'Failed to create empty XML'
+        return       
+
     def __md5(self,fname):
         hash_md5 = hashlib.md5()
         with open(fname, "rb") as f:
