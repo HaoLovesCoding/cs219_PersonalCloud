@@ -181,10 +181,15 @@ class HomuraFS():
             #self.update_file(self.local_xml, self.hdfs_xml, 0)
             #return
 
+        self.meta.path2Xml(self.mount_root)
+        self.meta.mydoc = self.meta.tempdoc
+
         print 'HDFS XML:'
         self.meta.showHDFSXml()
         print '---\nSnapshot Xml'
         self.meta.showSnapshotXml()
+        print '---\nLocal Xml'
+        self.meta.showMyXml()
 
         # find operations since last sync
         (my_creates, my_deletes, my_modifies,
