@@ -1,5 +1,6 @@
 import os
 
+
 class ConflictResolver(object):
 
     def __init__(self):
@@ -51,6 +52,11 @@ class ConflictResolver(object):
                     idx = modify_b.index(entry)
                     del modify_b[idx]
 
+                    idx2 = modify_a.index(entry)
+                    del modify_a[idx2]
+
+                    create_a.append(entry)
+
                     #create a new file named new name
                     new_entry = self.generate_entry(entry,new_filename)
                     create_b.append(new_entry)
@@ -87,6 +93,7 @@ class ConflictResolver(object):
 
                         idx = create_b.index(entry)
                         del create_b[idx]
+
 
                         #create a new file named new name
                         new_entry = self.generate_entry(entry,new_filename)
@@ -140,7 +147,11 @@ class ConflictResolver(object):
         print host_a + " wants to " + type_a
         print host_b + " wants to " + type_b
         print "Which host should I listen to?"
-        print "usage: input "+ host_a + " or " + host_b
+        print "usage: input "+ host_a + " or " + host_b,
+        if type_a == type_b:
+            print " or both"
+        else:
+            print ""
 
         while True:
              result = raw_input("Answer:")
