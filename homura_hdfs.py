@@ -218,9 +218,11 @@ class HomuraFS():
         name = self.hdfs_root
 
         # apply operations on current device
-        for path in my_creates: # create top-level only if already have
-            #if path.count('/') > 1: # not top-level create
-            self.create_file(root + path, name + path, 1)
+        for path in my_creates:
+            if path.endswith('/'): # path is a folder we want to create
+                os.makedirs(root + path)
+            else:
+                self.create_file(root + path, name + path, 1)
         for path in my_modifies:
             self.update_file(root + path, name + path, 1)
         for path in my_deletes:
@@ -228,7 +230,10 @@ class HomuraFS():
 
         # apply operations on HDFS
         for path in hdfs_creates:
-            self.create_file(root + path, name + path, 0)
+            if path.endswith('/'): # path is a folder we want to create
+                self.client.makedirs(name + path)
+            else:
+                self.create_file(root + path, name + path, 0)
         for path in hdfs_modifies:
             self.update_file(root + path, name + path, 0)
         for path in hdfs_deletes:
