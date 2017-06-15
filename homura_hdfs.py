@@ -150,7 +150,7 @@ class HomuraFS():
                 #self.upload_all()
                 #self.download_all()
             except:
-                self.HDFSdoc = self.meta.emptyXml()
+                self.meta.HDFSdoc = self.meta.emptyXml()
                 #log("Could not find HDFS xml, so uploading everything")
                 #if not os.path.isfile(self.local_xml):
                 #    with open(self.local_xml, 'w') as writer:
@@ -181,10 +181,10 @@ class HomuraFS():
             #self.update_file(self.local_xml, self.hdfs_xml, 0)
             #return
 
-        #print 'HDFS XML:'
-        #self.meta.showHDFSXml()
-        #print '---\nSnapshot Xml'
-        #self.meta.showSnapshotXml()
+        print 'HDFS XML:'
+        self.meta.showHDFSXml()
+        print '---\nSnapshot Xml'
+        self.meta.showSnapshotXml()
 
         # find operations since last sync
         (my_creates, my_deletes, my_modifies,
