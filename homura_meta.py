@@ -31,7 +31,7 @@ class HomuraMeta:
             self.tempdoc=Document()
         except Exception:
             print 'Failed to create empty XML'
-        return       
+        return self.tempdoc
 
     def __md5(self,fname):
         hash_md5 = hashlib.md5()
