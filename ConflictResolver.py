@@ -7,6 +7,8 @@ class ConflictResolver(object):
         self.local_root = None
 
     def resolve(self,list_a,list_b, host_a = "Local", host_b = "HDFS"):
+
+        host_a = "copy"
         #each list has three sublist: create, delete, modify
         delete_a = list_a[1]
         delete_b = list_b[1]
@@ -147,7 +149,7 @@ class ConflictResolver(object):
         print "Which host should I listen to?"
         print "usage: input "+ host_a + " or " + host_b,
         if type_a == type_b:
-            print " or both"
+            print "or both"
         else:
             print ""
 
@@ -169,10 +171,10 @@ class ConflictResolver(object):
         self.local_root = root
 
     def find_local_dir(self,entry):
-        if self.root == None:
+        if self.local_root == None:
             raise ValueError, "local root directory has not been set"
         else:
-            local_filepath = self.root + entry
+            local_filepath = self.local_root + entry
             for i in range(len(local_filepath)-1,-1,-1):
                 if local_filepath[i] == "/":
                     break
@@ -186,7 +188,7 @@ class ConflictResolver(object):
             new_filename += "_" + host_a
             if new_filename not in os.listdir(local_dirpath):
                 break
-        new_fullname = local_dirpath + new_filename
+        new_fullname = local_dirpath + os.path.sep + new_filename
         return new_fullname, new_filename
 
     def generate_entry(self,entry,new_filename):
