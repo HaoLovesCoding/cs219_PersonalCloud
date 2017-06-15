@@ -11,7 +11,7 @@ import logging
 
 def log(message, error=0):
     if error == 0:
-        #print 'Log:', message
+        print 'Log:', message
         pass
     else:
         print 'Error:', message
