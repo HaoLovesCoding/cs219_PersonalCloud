@@ -122,15 +122,14 @@ class HomuraFS():
 
     def upload_all(self):
         log('Uploading all files from local device to HDFS')
-        #try:
-        if True:
-            #print os.listdir(self.mount_root)
-            for dir_or_file in os.listdir(self.mount_root):
-                if not dir_or_file.startswith('.'):
-                    log('Uploading ' + self.mount_root + '/' + dir_or_file)
-                    self.create_file(self.mount_root + '/'+ dir_or_file, self.hdfs_root + '/' + dir_or_file, 0)
-        #except:
-        #    log('Error while uploading to HDFS')
+
+        for dir_or_file in os.listdir(self.mount_root):
+            if not dir_or_file.startswith('.'):
+                try:
+                    log('Uploading to ' + self.hdfs_root + '/' + dir_or_file)
+                    self.client.upload(self.hdfs_root + '/' + dir_or_file, self.mount_root + '/' + dir_or_file, n_threads=0)
+                except:
+                    log('Warning: could not upload')
 
     def sync_files(self):
         # check if we have an old snapshot xml
@@ -142,27 +141,20 @@ class HomuraFS():
                 self.update_file(self.hdfs_loc_xml, self.hdfs_xml, 1)
                 log("Loading HDFS xml")
                 self.meta.loadHDFSXml(self.hdfs_loc_xml)
-
                 os.remove(self.hdfs_loc_xml)
+
+                self.upload_all()
                 self.download_all()
             except:
                 log("Could not find HDFS xml, so uploading everything")
                 if not os.path.isfile(self.local_xml):
                     with open(self.local_xml, 'w') as writer:
                         writer.write('') # create dummy xml if not exist
+                self.upload_all()
 
-                for dir_or_file in os.listdir(self.mount_root):
-                    if not dir_or_file.startswith('.'):
-                        try:
-                            log('Uploading to ' + self.hdfs_root + '/' + dir_or_file)
-                            self.client.upload(self.hdfs_root + '/' + dir_or_file, self.mount_root + '/' + dir_or_file, n_threads=0)
-                        except:
-                            log('Warning: could not upload')
-                            pass
-            
-                self.meta.path2Xml(self.mount_root)
-                self.meta.saveXml(self.local_xml, Xml='temp')
-                self.update_file(self.local_xml, self.hdfs_xml, 0)
+            self.meta.path2Xml(self.mount_root)
+            self.meta.saveXml(self.local_xml, Xml='temp')
+            self.update_file(self.local_xml, self.hdfs_xml, 0)
             return
 
         log("Fetching local snapshot xml from " + self.local_xml)
@@ -179,15 +171,7 @@ class HomuraFS():
             if not os.path.isfile(self.local_xml):
                 with open(self.local_xml, 'w') as writer:
                     writer.write('') # create dummy xml if not exist
-
-            for dir_or_file in os.listdir(self.mount_root):
-                if not dir_or_file.startswith('.'):
-                    try:
-                        log('--Uploading to ' + self.hdfs_root + '/' + dir_or_file)
-                        self.client.upload(self.hdfs_root + '/' + dir_or_file, self.mount_root + '/' + dir_or_file, n_threads=0)
-                    except:
-                        log('--Warning: could not upload')
-                        pass
+            self.upload_all()
             
             self.meta.path2Xml(self.mount_root)
             self.meta.saveXml(self.local_xml, Xml='temp')
