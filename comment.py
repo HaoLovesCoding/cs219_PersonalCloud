@@ -12,7 +12,6 @@ def load_obj(name):
 def comment_count():
     result = {}
 
-    total = 0
     while True:
         comment = raw_input("Please enter a comment:\n")
         if comment == "quit":
@@ -23,9 +22,8 @@ def comment_count():
         for word in words:
             if word in result.keys():
                 result[word] += [comment]
-                total += 1
                 old_key = True
-                break
+
 
         if not old_key:
             for idx, word in enumerate(words):
@@ -36,7 +34,7 @@ def comment_count():
                 break
             keyword = words[int(key)]
             result[keyword] = result.get(keyword,[]) + [comment]
-            total += 1
+
 
 
     if len(result) == 0:
