@@ -29,6 +29,9 @@ class HomuraMeta:
     def emptyXml(self):
         try:
             self.tempdoc=Document()
+            node=self.tempdoc.createElement('dir')
+            node.setAttribute('path','/')
+            self.tempdoc.appendChild(node)
         except Exception:
             print 'Failed to create empty XML'
         return self.tempdoc
