@@ -1,26 +1,25 @@
-# cs219_PersonalCloud
-
-## Spring 2017 UCLA with Prof. Songwu Lu  & Taqi 
+# cs219_PersonalCloud  
+## Spring 2017 UCLA with Prof. Songwu Lu  & Taqi   
 
 ## Team Member:
-Walliam Liu     Willaimlai@ucla.edu
-Mushi Zhou		zmushi@gmail.com       
-Hao Wu          nanocmp@gmail.com 
-Xiao Yan        yanxiao0201@ucla.edu
+Walliam Liu     Willaimlai@ucla.edu   
+Mushi Zhou		zmushi@gmail.com         
+Hao Wu          nanocmp@gmail.com    
+Xiao Yan        yanxiao0201@ucla.edu   
 
 
 ##  Step to Run Our Program
 
- * Our middle-ware currently only runs on MacOSX, so a Mac with OSX is needed.    
- * Our middle-ware requires python 2.x. Make sure python 2 version 2.4 or above is available.   
- * Our program requires Node js to run in background for USB detection. Make sure Node is installed using npm.   
- * There are two module dependencies: js2py and USB-Detection. Install them as follows:   
+1. Our middle-ware currently only runs on MacOSX, so a Mac with OSX is needed.    
+2. Our middle-ware requires python 2.x. Make sure python 2 version 2.4 or above is available.   
+3. Our program requires Node js to run in background for USB detection. Make sure Node is installed using npm.   
+4. There are two module dependencies: js2py and USB-Detection. Install them as follows:   
     pip install js2py    
     npm install USB-Detection   
- * In our source repository, execute    
+5. In our source repository, execute    
     python homura_hdfs.py
 
-* .....    
+6.  .....    
 
 
 REQUIREMENTS:
