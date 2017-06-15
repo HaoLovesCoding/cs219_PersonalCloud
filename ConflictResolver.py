@@ -15,8 +15,6 @@ class ConflictResolver(object):
         create_a = list_a[0]
         create_b = list_b[0]
 
-
-
         # solve deletion conflict
 
         intersect = filter(lambda x: x in delete_a, delete_b)
