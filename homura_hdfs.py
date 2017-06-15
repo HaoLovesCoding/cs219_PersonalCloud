@@ -131,61 +131,60 @@ class HomuraFS():
                 except:
                     log('Warning: could not upload')
 
+    def load_HDFS_XML(self):
+        log("Attempting to fetch HDFS xml")
+        self.update_file(self.hdfs_loc_xml, self.hdfs_xml, 1)
+        log("Loading HDFS xml")
+        self.meta.loadHDFSXml(self.hdfs_loc_xml)
+        os.remove(self.hdfs_loc_xml)
+
     def sync_files(self):
         # check if we have an old snapshot xml
         if not os.path.isfile(self.local_xml): # snapshot doesn't exist, so download everything
             log("No local snapshot file was found at " + self.local_xml)
+            self.meta.Snapshotdoc = self.meta.emptyXml() # use empty
             try:
                 # fetch HDFS xml and store locally
-                log("Attempting to fetch HDFS xml")
-                self.update_file(self.hdfs_loc_xml, self.hdfs_xml, 1)
-                log("Loading HDFS xml")
-                self.meta.loadHDFSXml(self.hdfs_loc_xml)
-                os.remove(self.hdfs_loc_xml)
+                self.load_HDFS_XML()
 
-                self.upload_all()
-                self.download_all()
+                #self.upload_all()
+                #self.download_all()
             except:
-                log("Could not find HDFS xml, so uploading everything")
-                if not os.path.isfile(self.local_xml):
-                    with open(self.local_xml, 'w') as writer:
-                        writer.write('') # create dummy xml if not exist
-                self.upload_all()
+                self.meta.HDFSdoc = self.meta.emptyXml()
+                #log("Could not find HDFS xml, so uploading everything")
+                #if not os.path.isfile(self.local_xml):
+                #    with open(self.local_xml, 'w') as writer:
+                #        writer.write('') # create dummy xml if not exist
+                #self.upload_all()
 
-            self.meta.path2Xml(self.mount_root)
-            self.meta.saveXml(self.local_xml, Xml='temp')
-            self.update_file(self.local_xml, self.hdfs_xml, 0)
-            return
+            #self.meta.path2Xml(self.mount_root)
+            #self.meta.saveXml(self.local_xml, Xml='temp')
+            #self.update_file(self.local_xml, self.hdfs_xml, 0)
+            #return
+        else:
+            log("Fetching local snapshot xml from " + self.local_xml)
+            self.meta.loadSnapshotXml(self.local_xml)
 
-        log("Fetching local snapshot xml from " + self.local_xml)
-        self.meta.loadSnapshotXml(self.local_xml)
-
-        try:
-            # fetch HDFS xml and store locally
-            log("--Attempting to fetch HDFS xml")
-            self.update_file(self.hdfs_loc_xml, self.hdfs_xml, 1)
-            log("--Loading HDFS xml")
-            self.meta.loadHDFSXml(self.hdfs_loc_xml)
-        except:
-            log("--Could not find HDFS xml, so uploading everything")
-            if not os.path.isfile(self.local_xml):
-                with open(self.local_xml, 'w') as writer:
-                    writer.write('') # create dummy xml if not exist
-            self.upload_all()
+            try:
+                # fetch HDFS xml and store locally
+                self.load_HDFS_XML()
+            except:
+                self.meta.HDFSdoc = self.meta.emptyXml()
+                #log("--Could not find HDFS xml, so uploading everything")
+                #if not os.path.isfile(self.local_xml):
+                #    with open(self.local_xml, 'w') as writer:
+                #        writer.write('') # create dummy xml if not exist
+                #self.upload_all()
             
-            self.meta.path2Xml(self.mount_root)
-            self.meta.saveXml(self.local_xml, Xml='temp')
-            self.update_file(self.local_xml, self.hdfs_xml, 0)
-            return
+            #self.meta.path2Xml(self.mount_root)
+            #self.meta.saveXml(self.local_xml, Xml='temp')
+            #self.update_file(self.local_xml, self.hdfs_xml, 0)
+            #return
 
-        # Generate current xml for local
-        self.meta.path2Xml(self.mount_root)
-        self.meta.mydoc = self.meta.tempdoc
-
-        #print 'HDFS XML:'
-        #self.meta.showHDFSXml()
-        #print '---\nSnapshot Xml'
-        #self.meta.showSnapshotXml()
+        print 'HDFS XML:'
+        self.meta.showHDFSXml()
+        print '---\nSnapshot Xml'
+        self.meta.showSnapshotXml()
 
         # find operations since last sync
         (my_creates, my_deletes, my_modifies,
