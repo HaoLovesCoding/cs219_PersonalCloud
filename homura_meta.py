@@ -14,6 +14,7 @@ class HomuraMeta:
         self.HDFSdoc=None
         self.tempdoc=None
         self.myresolver=ConflictResolver()
+        self.myRootpath=None
 
     def path2Xml(self,path):
         if self.tempdoc!=None:
@@ -222,6 +223,8 @@ class HomuraMeta:
         #print myhistory
         #print 'HDFS'
         #print HDFShistory
+
+        self.myresolver.set_local_root(self.myRootpath)
         self.myresolver.resolve(HDFShistory,myhistory,'local','hdfs')
         #show operation for debugging
         print "----------------------------"
@@ -280,6 +283,9 @@ class HomuraMeta:
             if cur.nodeName=='file':
                 some_list.append(cur.parentNode.getAttribute('path')+cur.getAttribute('name'))
         return
+
+    def setMyRootpath(self,path):
+        self.myRootpath=path
 
     def __weakConsistentCompare_not_in_use(self):
         myfile_dict={}
