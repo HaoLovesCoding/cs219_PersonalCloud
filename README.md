@@ -26,6 +26,7 @@ Mushi Zhou		zmushi@ucla.edu
 13. Please confirm that HDFS operations can be executed locally by testing our the creation/upload/deletion/etc. of both files and folders on HDFS.
 14. Start HDFS via the command 'hstart' (or equivalent command depending on your configurations)
 15. Start up our program via python: 'python homura_hdfs.py'
-16. Plug in a USB device if you haven't done so already, and type 'sync' into the prompt. It may take a few seconds for the device to be detected. If you cannot get the device to be shown in the prompt, please make sure that the device is recognized by your computer, as we have had issues before where the system itself did not recognize that a USB had been plugged in. 
+16. Plug in a USB device if you haven't done so already, and type 'sync' into the prompt. It may take a few seconds for the device to be detected. If you cannot get the device to be shown in the prompt, please make sure that the device is recognized by your computer, as we have had issues before where the system itself did not recognize that a USB had been plugged in. You can check the list of detected devices with the command 'system_profiler SPUSBDataType'
 17. Enter the device number that you wish to be synchronized.
 18. Check HDFS to see that the files have been uploaded successfully. By default, it should be in a folder named '/cs219'.
+19. After you are finished running commands, type 'quit' into the prompt to exit.
