@@ -91,15 +91,6 @@ class HomuraFS():
                 self.__test()
             elif cmd == 'download':
                 pass
-                #dl_name = raw_input('Which HDFS directory to download to device? ')
-                #log('Downloading HDFS directory ' + dl_name + ' to local device')
-                #try:
-                #    self.create_file(self.mount_root, dl_name, 1)
-                #except:
-                #    log('HDFS directory ' + dl_name + ' does not exist')
-                #    continue
-                #self.meta.path2Xml(self.mount_root)
-                #self.meta.saveXml(self.local_xml, Xml='temp')
             elif cmd == 'quit':
                 if self.monitor:
                     Monitor_Stop(self.monitor)
@@ -107,18 +98,19 @@ class HomuraFS():
 
     def download_all(self):
         log('Downloading all files from HDFS to local device')
-        #try:
-        if True:
+        try:
             self.create_file(self.mount_root, self.hdfs_root, 1)
             for dir_or_file in os.listdir(self.mount_root + self.hdfs_root):
                 if not dir_or_file.startswith('.'):
                     shutil.move(self.mount_root + self.hdfs_root + '/' + dir_or_file, self.mount_root)
-                    #print "successfully moved file : {}".format(dir_or_file)
-            #print 'deleting ' + self.mount_root + self.hdfs_root
             shutil.rmtree(self.mount_root + self.hdfs_root)
-        #except:
-        #    log('Could not find path in HDFS')
-        #    raise Error
+        except:
+            log('Something went wrog while downloading files')
+            try:
+                shutil.rmtree(self.mount_root + self.hdfs_root)
+            except:
+                pass
+
         self.meta.path2Xml(self.mount_root)
         self.meta.saveXml(self.local_xml, Xml='temp')
 
@@ -149,20 +141,9 @@ class HomuraFS():
                 # fetch HDFS xml and store locally
                 self.load_HDFS_XML()
 
-                #self.upload_all()
-                #self.download_all()
             except:
                 self.meta.HDFSdoc = self.meta.emptyXml()
-                #log("Could not find HDFS xml, so uploading everything")
-                #if not os.path.isfile(self.local_xml):
-                #    with open(self.local_xml, 'w') as writer:
-                #        writer.write('') # create dummy xml if not exist
-                #self.upload_all()
 
-            #self.meta.path2Xml(self.mount_root)
-            #self.meta.saveXml(self.local_xml, Xml='temp')
-            #self.update_file(self.local_xml, self.hdfs_xml, 0)
-            #return
         else:
             log("Fetching local snapshot xml from " + self.local_xml)
             self.meta.loadSnapshotXml(self.local_xml)
@@ -172,26 +153,16 @@ class HomuraFS():
                 self.load_HDFS_XML()
             except:
                 self.meta.HDFSdoc = self.meta.emptyXml()
-                #log("--Could not find HDFS xml, so uploading everything")
-                #if not os.path.isfile(self.local_xml):
-                #    with open(self.local_xml, 'w') as writer:
-                #        writer.write('') # create dummy xml if not exist
-                #self.upload_all()
             
-            #self.meta.path2Xml(self.mount_root)
-            #self.meta.saveXml(self.local_xml, Xml='temp')
-            #self.update_file(self.local_xml, self.hdfs_xml, 0)
-            #return
-
         self.meta.path2Xml(self.mount_root)
         self.meta.mydoc = self.meta.tempdoc
 
-        print 'HDFS XML:'
-        self.meta.showHDFSXml()
-        print '---\nSnapshot Xml'
-        self.meta.showSnapshotXml()
-        print '---\nLocal Xml'
-        self.meta.showMyXml()
+        #print 'HDFS XML:'
+        #self.meta.showHDFSXml()
+        #print '---\nSnapshot Xml'
+        #self.meta.showSnapshotXml()
+        #print '---\nLocal Xml'
+        #self.meta.showMyXml()
 
         # find operations since last sync
         (my_creates, my_deletes, my_modifies,
