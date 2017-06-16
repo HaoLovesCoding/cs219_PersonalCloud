@@ -2,7 +2,7 @@
 ## Spring 2017 UCLA with Prof. Songwu Lu & Taqi   
 
 ## Team Member:
-William Lai     willaimlai@ucla.edu   
+William Lai     williamlai@ucla.edu   
 Hao Wu          nanocmp@gmail.com    
 Xiao Yan        yanxiao0201@ucla.edu   
 Mushi Zhou		zmushi@ucla.edu         
