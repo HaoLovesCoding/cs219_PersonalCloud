@@ -1,63 +1,31 @@
 # cs219_PersonalCloud  
-## Spring 2017 UCLA with Prof. Songwu Lu  & Taqi   
+## Spring 2017 UCLA with Prof. Songwu Lu & Taqi   
 
 ## Team Member:
-Walliam Liu     Willaimlai@ucla.edu   
-Mushi Zhou		zmushi@gmail.com         
+William Lai     willaimlai@ucla.edu   
 Hao Wu          nanocmp@gmail.com    
 Xiao Yan        yanxiao0201@ucla.edu   
+Mushi Zhou		zmushi@ucla.edu         
 
 
-##  Step to Run Our Program
+##  Step-by-Step Guide to Running Our Program
 
-1. Our middle-ware currently only runs on MacOSX, so a Mac with OSX is needed.    
-2. Our middle-ware requires python 2.x. Make sure python 2 version 2.4 or above is available.   
-3. Our program requires Node js to run in background for USB detection. Make sure Node is installed using npm.   
-4. There are two module dependencies: js2py and USB-Detection. Install them as follows:   
-    pip install js2py    
-    npm install USB-Detection   
-5. In our source repository, execute    
-    python homura_hdfs.py
-
-6.  .....    
-
-
-REQUIREMENTS:
-- Hadoop must be running on the same machine as the device
-- the desired namenode server must be specified in your Hadoop configuration file (the 'dev' configuration is used, but can be changed in __init__)
-- the filesystem must have some request_file (you can set this in the __init__ function; this request file serves as a log for the requests for files that other clients will make after seeing the metadata
-- the 'hdfs' python module must be installed (I used pip and virtualenv)
-
-
-HOW TO RUN:
-`python homura_hdfs.py`
-- this will load a shell-like interface
-- the following commands are possible:
-    `quit` - terminates the program
-    `read [hdfs_pathname] - attempts to read file from hdfs; one of three cases are possible:
-        file does not exist: error message printed
-        metadata exists: client makes request for the actual file to be uploaded and loops until it exists
-        actual file exists: client prints contents of file
-    `upload [local_pathname] [hdfs_pathname] - uploads metadata for local file to the hdfs path given
-- after processing a command, the client will check the request log for any requests made for a file it owns. if so, it will upload the actual file and remove the request entry from the log
-
-
-TEST FLOW:
-Create a file test.txt and type in a few arbitrary lines of text
-ClientA runs program using name 'ClientA' (you can set this at the bottom of the python file)
-ClientB runs program using name 'ClientB'
-ClientA enters command 'upload test.txt /some/path/test.txt'
-- a log message should appear indicating the metadata was uploaded
-ClientB enters command 'read /some/path/test.txt'
-- a log message should appear indicating that metadata exists
-- a log message should appear indicating that a new request has been added
-ClientA presses enter (acts as a manual "refresh")
-- a log message should appear indicating that it is checking the log
-- a log message should appear indicating that it is uploading the actual file
-ClientB should print out the contents of test.txt after ClientA has uploaded it
-
-
-NOTES:
-- on my machine, HDFS runs really slowly, so having multiple calls to HDFS like in this program is even lower. I'm not sure if this will be an issue, but for now functionality is probably the primary goal
-- the current "request log synchronization" is probably not ideal but it was the easiest way for me to connect everything together at the start. We may want to explore alternatives if we have time.
-- Please report any bugs that you find!
+0. We assume use of a MacOSX operating system.
+1. Install homebrew 1.2.3
+2. Install hadoop 2.7.2
+3. Install node 7.10.0
+4. Install python 2.7.x
+5. Install pip 9.0.1
+6. Install npm 4.2.0
+7. Install the python HDFS module by running 'pip install hdfs'
+8. Install the python js2py module by running 'pip install js2py'
+9. Install usb-detection on node by running 'npm install usb-detection'
+10. Download our code with the command 'git clone https://github.com/yanxiao0201/cs219_PersonalCloud.git'
+11. A configuration file like specified in the python HDFS module documentation is needed (https://hdfscli.readthedocs.io/en/latest/quickstart.html). We provide the configuration file in our repository, but it needs to be copied to your home directory like so: 'cp hdfscli.cfg ~/.hdfscli.cfg'
+12. Restart the terminal to ensure that the installations are active.
+13. Please confirm that HDFS operations can be executed locally by testing our the creation/upload/deletion/etc. of both files and folders on HDFS.
+14. Start HDFS via the command 'hstart' (or equivalent command depending on your configurations)
+15. Start up our program via python: 'python homura_hdfs.py'
+16. Plug in a USB device if you haven't done so already, and type 'sync' into the prompt. It may take a few seconds for the device to be detected. If you cannot get the device to be shown in the prompt, please make sure that the device is recognized by your computer, as we have had issues before where the system itself did not recognize that a USB had been plugged in. 
+17. Enter the device number that you wish to be synchronized.
+18. Check HDFS to see that the files have been uploaded successfully. By default, it should be in a folder named '/cs219'.

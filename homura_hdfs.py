@@ -32,17 +32,6 @@ class HomuraFS():
         if sys.platform.startswith('darwin'):
             logging.basicConfig(filename='mylog.log', level=logging.INFO)
             self.monitor = Monitor_Start()
-            '''
-            for dev in self.monitor.devs:
-                devname = dev['Dname']
-                manufacture = dev['Man']
-                hname = dev['Hname']
-                is_sync = raw_input("Devname: {}, Hname: {}, Manufacture: {}. Do you want to sync?\n".format(devname, hname, manufacture))
-                #if is_sync == "yes":
-                    #self.name = devname
-                    #TODO: change the sync root
-                    #self.sync_files()
-            '''
 
     def shell_loop(self):
         while True:
@@ -87,8 +76,9 @@ class HomuraFS():
                     pass
 
             elif cmd == 'test':
-                log('Setting up test directory with default config')
-                self.__test()
+                pass
+                #log('Setting up test directory with default config')
+                #self.__test()
             elif cmd == 'download':
                 pass
             elif cmd == 'quit':
@@ -286,6 +276,6 @@ class HomuraFS():
 
 
 if __name__ == "__main__":
-    #name = raw_input('Device name? ')
     fs = HomuraFS()
     fs.shell_loop()
+
